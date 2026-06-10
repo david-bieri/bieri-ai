@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bieri · AI Ecosystem Architecture (Unified)</title>
+<style>
+  :root {
+    --bg:      #ffffff;
+    --bg2:     #f8f7f4;
+    --border:  #e2e0d8;
+    --text:    #2c2c2a;
+    --muted:   #5f5e5a;
+    --accent:  #C00000;
+    --blue:    #185FA5;
+    --purple:  #3C3489;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg:     #1a1a18;
+      --bg2:    #242420;
+      --border: #3a3a36;
+      --text:   #e8e6de;
+      --muted:  #8a8880;
+    }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: Calibri, 'Segoe UI', Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 40px 24px 60px;
+  }
+  header {
+    border-left: 3px solid var(--accent);
+    padding-left: 14px;
+    margin-bottom: 28px;
+  }
+  header h1 {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: -0.02em;
+  }
+  header p {
+    font-size: 12.5px;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+  .diagram-wrap {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 28px;
+  }
+  .diagram-wrap svg { display: block; width: 100%; height: auto; }
+  h2 {
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    margin: 24px 0 10px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12.5px;
+    margin-bottom: 16px;
+  }
+  th {
+    text-align: left;
+    padding: 6px 10px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    font-weight: 600;
+    color: var(--muted);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  td {
+    padding: 7px 10px;
+    border: 1px solid var(--border);
+    vertical-align: top;
+    color: var(--text);
+  }
+  tr:nth-child(even) td { background: var(--bg2); }
+  code {
+    font-family: 'Cascadia Code', 'Consolas', monospace;
+    font-size: 11.5px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 1px 5px;
+    color: var(--accent);
+  }
+  .pill {
+    display: inline-block;
+    font-size: 10.5px;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 10px;
+    margin-right: 4px;
+  }
+  .pill-blue   { background: #E6F1FB; color: #0C447C; border: 1px solid #B5D4F4; }
+  .pill-amber  { background: #FAEEDA; color: #412402; border: 1px solid #FAC775; }
+  .pill-gray   { background: #F1EFE8; color: #2C2C2A; border: 1px solid #D3D1C7; }
+  .pill-purple { background: #EEEDFE; color: #26215C; border: 1px solid #CECBF6; }
+  .pill-green  { background: #E8F5E9; color: #1B5E20; border: 1px solid #A5D6A7; }
+  .rule {
+    font-size: 12px;
+    padding: 10px 14px;
+    background: var(--bg2);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 6px 6px 0;
+    margin: 6px 0;
+    color: var(--text);
+  }
+  .note {
+    font-size: 11.5px;
+    color: var(--muted);
+    margin: -8px 0 16px;
+  }
+  footer {
+    margin-top: 40px;
+    font-size: 11px;
+    color: var(--muted);
+    border-top: 1px solid var(--border);
+    padding-top: 14px;
+  }
+  @media print {
+    body { padding: 20px; }
+    .diagram-wrap { border: 1px solid #ccc; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Bieri · AI Ecosystem Architecture (Unified)</h1>
+  <p>Virginia Tech SPIA · David Bieri · bieri@vt.edu · last updated 2026-06-10</p>
+</header>
+
+<div class="diagram-wrap">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 520">
+  <defs>
+    <style>
+      text { font-family: Calibri, 'Segoe UI', Arial, sans-serif; }
+      .lh { font-size: 13px; font-weight: 600; }
+      .ls { font-size: 11px; font-weight: 400; }
+      .ch { font-size: 12.5px; font-weight: 600; fill: #2C2C2A; }
+      .rt { font-size: 10px; fill: #888780; }
+      .dm { fill: #888780; font-size: 10.5px; }
+      .arrow { fill: none; stroke: #888780; stroke-width: 1; marker-end: url(#arrowhead); }
+      .arrow-dash { fill: none; stroke: #888780; stroke-width: 1; stroke-dasharray: 4 3; marker-end: url(#arrowhead); }
+    </style>
+    <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#888780"/>
+    </marker>
+  </defs>
+  <rect width="680" height="520" fill="transparent"/>
+
+  <!-- Legend -->
+  <rect x="40" y="6" width="10" height="10" rx="2" fill="#E6F1FB" stroke="#185FA5" stroke-width="0.5"/>
+  <text x="55" y="15" class="ls" fill="#444441">platform</text>
+  <rect x="120" y="6" width="10" height="10" rx="2" fill="#FAEEDA" stroke="#854F0B" stroke-width="0.5"/>
+  <text x="135" y="15" class="ls" fill="#444441">fast · state</text>
+  <rect x="215" y="6" width="10" height="10" rx="2" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5"/>
+  <text x="230" y="15" class="ls" fill="#444441">slow · registry</text>
+  <rect x="335" y="6" width="10" height="10" rx="2" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.5"/>
+  <text x="350" y="15" class="ls" fill="#444441">skills</text>
+  <rect x="410" y="6" width="10" height="10" rx="2" fill="#E8F5E9" stroke="#388E3C" stroke-width="0.5"/>
+  <text x="425" y="15" class="ls" fill="#444441">adapters</text>
+
+  <!-- ═══════════ TIER 1: PLATFORMS ═══════════ -->
+  <text x="36" y="42" text-anchor="end" class="rt">platforms</text>
+  <rect x="40" y="26" width="600" height="48" rx="8" fill="#E6F1FB" stroke="#185FA5" stroke-width="0.5"/>
+  <rect x="60" y="36" width="140" height="28" rx="5" fill="#ffffff" stroke="#185FA5" stroke-width="0.5"/>
+  <text x="130" y="54" text-anchor="middle" class="lh" fill="#0C447C">Claude Projects</text>
+  <rect x="220" y="36" width="140" height="28" rx="5" fill="#ffffff" stroke="#185FA5" stroke-width="0.5"/>
+  <text x="290" y="54" text-anchor="middle" class="lh" fill="#0C447C">Manus Tasks</text>
+  <rect x="380" y="36" width="140" height="28" rx="5" fill="#ffffff" stroke="#B4B2A9" stroke-width="0.5"/>
+  <text x="450" y="54" text-anchor="middle" class="lh" fill="#888780">Future Agent</text>
+  <rect x="540" y="36" width="86" height="28" rx="5" fill="#ffffff" stroke="#B4B2A9" stroke-width="0.5"/>
+  <text x="583" y="54" text-anchor="middle" class="lh" fill="#888780">…</text>
+
+  <!-- Arrow: platforms → adapters -->
+  <line x1="340" y1="74" x2="340" y2="88" class="arrow-dash"/>
+  <text x="355" y="84" class="dm">reads via</text>
+
+  <!-- ═══════════ TIER 2: ADAPTERS ═══════════ -->
+  <text x="36" y="108" text-anchor="end" class="rt">adapters</text>
+  <rect x="40" y="92" width="600" height="44" rx="8" fill="#E8F5E9" stroke="#388E3C" stroke-width="0.5"/>
+  <rect x="60" y="100" width="175" height="28" rx="5" fill="#ffffff" stroke="#388E3C" stroke-width="0.5"/>
+  <text x="147" y="113" text-anchor="middle" class="ls" fill="#1B5E20">Claude: .skill generator</text>
+  <text x="147" y="124" text-anchor="middle" class="rt" fill="#388E3C">audit_skill.py</text>
+  <rect x="255" y="100" width="175" height="28" rx="5" fill="#ffffff" stroke="#388E3C" stroke-width="0.5"/>
+  <text x="342" y="113" text-anchor="middle" class="ls" fill="#1B5E20">Manus: SKILL.md frontmatter</text>
+  <text x="342" y="124" text-anchor="middle" class="rt" fill="#388E3C">quick_validate.py</text>
+  <rect x="450" y="100" width="175" height="28" rx="5" fill="#ffffff" stroke="#B4B2A9" stroke-width="0.5" stroke-dasharray="4 3"/>
+  <text x="537" y="118" text-anchor="middle" class="ls" fill="#888780">(future adapter)</text>
+
+  <!-- Arrow: adapters → skills -->
+  <line x1="340" y1="136" x2="340" y2="152" class="arrow-dash"/>
+  <text x="355" y="147" class="dm">wraps</text>
+
+  <!-- ═══════════ TIER 3: SKILLS ═══════════ -->
+  <text x="36" y="172" text-anchor="end" class="rt">skills</text>
+  <rect x="40" y="156" width="600" height="120" rx="8" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.5"/>
+
+  <!-- Universal skills -->
+  <text x="60" y="173" class="rt" fill="#534AB7">UNIVERSAL</text>
+  <rect x="60" y="178" width="120" height="32" rx="5" fill="#ffffff" stroke="#534AB7" stroke-width="0.5"/>
+  <text x="120" y="198" text-anchor="middle" class="lh" fill="#26215C">session-handover</text>
+  <rect x="190" y="178" width="145" height="32" rx="5" fill="#ffffff" stroke="#534AB7" stroke-width="0.5"/>
+  <text x="262" y="198" text-anchor="middle" class="lh" fill="#26215C">web-release-workflow</text>
+
+  <!-- Namespaced skills -->
+  <text x="60" y="225" class="rt" fill="#534AB7">NAMESPACED</text>
+  <rect x="60" y="230" width="110" height="36" rx="5" fill="#ffffff" stroke="#534AB7" stroke-width="0.5"/>
+  <text x="115" y="246" text-anchor="middle" class="lh" fill="#26215C">course:*</text>
+  <text x="115" y="260" text-anchor="middle" class="rt" fill="#3C3489">7 skills</text>
+  <rect x="180" y="230" width="110" height="36" rx="5" fill="#ffffff" stroke="#534AB7" stroke-width="0.5"/>
+  <text x="235" y="246" text-anchor="middle" class="lh" fill="#26215C">webdev:*</text>
+  <text x="235" y="260" text-anchor="middle" class="rt" fill="#3C3489">6 skills</text>
+  <rect x="300" y="230" width="110" height="36" rx="5" fill="#ffffff" stroke="#534AB7" stroke-width="0.5"/>
+  <text x="355" y="246" text-anchor="middle" class="lh" fill="#26215C">research:*</text>
+  <text x="355" y="260" text-anchor="middle" class="rt" fill="#3C3489">growing</text>
+  <rect x="420" y="230" width="110" height="36" rx="5" fill="#ffffff" stroke="#B4B2A9" stroke-width="0.5" stroke-dasharray="4 3"/>
+  <text x="475" y="246" text-anchor="middle" class="lh" fill="#888780">admin:*</text>
+  <text x="475" y="260" text-anchor="middle" class="rt" fill="#888780">project-specific</text>
+
+  <!-- Format note -->
+  <text x="555" y="192" class="dm">Format: skill.md</text>
+  <text x="555" y="205" class="dm">(platform-agnostic)</text>
+
+  <!-- Arrow: skills → domains -->
+  <line x1="340" y1="276" x2="340" y2="296" class="arrow-dash"/>
+  <text x="355" y="290" class="dm">reads/writes</text>
+
+  <!-- ═══════════ TIER 4: DOMAINS (FAST) ═══════════ -->
+  <text x="36" y="316" text-anchor="end" class="rt">fast</text>
+  <rect x="40" y="300" width="600" height="50" rx="8" fill="#FAEEDA" stroke="#854F0B" stroke-width="0.5"/>
+  <text x="340" y="320" text-anchor="middle" class="lh" fill="#412402">Session Notes · {DOMAIN}_SESSION_NOTES.md</text>
+  <text x="340" y="338" text-anchor="middle" class="ls" fill="#633806">In-flight state · pending dispatches · decisions · open questions</text>
+
+  <!-- Separators for domains -->
+  <line x1="160" y1="355" x2="160" y2="445" stroke="#D3D1C7" stroke-width="0.5" stroke-dasharray="3 3"/>
+  <line x1="280" y1="355" x2="280" y2="445" stroke="#D3D1C7" stroke-width="0.5" stroke-dasharray="3 3"/>
+  <line x1="400" y1="355" x2="400" y2="445" stroke="#D3D1C7" stroke-width="0.5" stroke-dasharray="3 3"/>
+  <line x1="520" y1="355" x2="520" y2="445" stroke="#D3D1C7" stroke-width="0.5" stroke-dasharray="3 3"/>
+
+  <!-- Domain headers -->
+  <text x="100" y="368" text-anchor="middle" class="ch">Research</text>
+  <text x="220" y="368" text-anchor="middle" class="ch">Teaching</text>
+  <text x="340" y="368" text-anchor="middle" class="ch">Admin</text>
+  <text x="460" y="368" text-anchor="middle" class="ch">WebDev</text>
+  <text x="580" y="368" text-anchor="middle" class="ch">Home</text>
+
+  <!-- ═══════════ TIER 5: DOMAINS (SLOW) ═══════════ -->
+  <text x="36" y="398" text-anchor="end" class="rt">slow</text>
+  <rect x="46"  y="380" width="108" height="36" rx="5" fill="#F1EFE8" stroke="#888780" stroke-width="0.5"/>
+  <text x="100" y="396" text-anchor="middle" class="ls" fill="#2C2C2A">progress log</text>
+  <text x="100" y="410" text-anchor="middle" class="rt" fill="#5F5E5A">(growing)</text>
+
+  <rect x="166" y="380" width="108" height="36" rx="5" fill="#F1EFE8" stroke="#888780" stroke-width="0.5"/>
+  <text x="220" y="396" text-anchor="middle" class="ls" fill="#2C2C2A">SKILLS_MANIFEST</text>
+  <text x="220" y="410" text-anchor="middle" class="rt" fill="#5F5E5A">+ course registry</text>
+
+  <rect x="286" y="380" width="108" height="36" rx="5" fill="#F1EFE8" stroke="#888780" stroke-width="0.5"/>
+  <text x="340" y="396" text-anchor="middle" class="ls" fill="#2C2C2A">project progress</text>
+  <text x="340" y="410" text-anchor="middle" class="rt" fill="#5F5E5A">+ decisions</text>
+
+  <rect x="406" y="380" width="108" height="36" rx="5" fill="#F1EFE8" stroke="#888780" stroke-width="0.5"/>
+  <text x="460" y="396" text-anchor="middle" class="ls" fill="#2C2C2A">SKILLS_MANIFEST</text>
+  <text x="460" y="410" text-anchor="middle" class="rt" fill="#5F5E5A">+ deploy log</text>
+
+  <rect x="526" y="380" width="108" height="36" rx="5" fill="#F1EFE8" stroke="#888780" stroke-width="0.5" stroke-dasharray="4 3"/>
+  <text x="580" y="400" text-anchor="middle" class="ls" fill="#888780">(not yet)</text>
+
+  <!-- ═══════════ BOTTOM: META GOVERNANCE ═══════════ -->
+  <rect x="40" y="432" width="600" height="40" rx="8" fill="#ffffff" stroke="#C00000" stroke-width="0.8"/>
+  <text x="340" y="450" text-anchor="middle" class="lh" fill="#C00000">Governance</text>
+  <text x="340" y="464" text-anchor="middle" class="ls" fill="#5F5E5A">bieri-ai/ monorepo · adapters/ · tools/ · architecture/ · BIERI_AI.md bootstrap</text>
+
+  <!-- Cross-platform handover annotation -->
+  <rect x="420" y="178" width="120" height="28" rx="5" fill="#ffffff" stroke="#534AB7" stroke-width="0.5"/>
+  <text x="480" y="196" text-anchor="middle" class="lh" fill="#26215C">skill-builder</text>
+  <text x="555" y="250" class="dm" fill="#534AB7">meta · governs</text>
+  <text x="555" y="262" class="dm" fill="#534AB7">skills library</text>
+
+  <!-- Version -->
+  <text x="640" y="510" text-anchor="end" class="rt">v2.0</text>
+</svg>
+</div>
+
+<h2>Design principle — separation of concerns</h2>
+<table>
+  <tr><th>Concern</th><th>Owns</th><th>Does NOT own</th></tr>
+  <tr><td>Platform (Claude, Manus)</td><td>Execution environment, session UX</td><td>Skill content, domain state</td></tr>
+  <tr><td>Adapter</td><td>Format wrapping, validation</td><td>Skill logic, platform behavior</td></tr>
+  <tr><td>Skill</td><td>Knowledge, workflow, code snippets</td><td>Platform-specific metadata, state</td></tr>
+  <tr><td>Domain</td><td>Session state, registries, progress</td><td>Skill definitions, platform config</td></tr>
+</table>
+
+<h2>Layer pattern — every domain</h2>
+<table>
+  <tr><th>Layer</th><th>File</th><th>Role</th><th>Update cadence</th></tr>
+  <tr><td><span class="pill pill-amber">fast</span></td><td><code>{DOMAIN}_SESSION_NOTES.md</code></td><td>In-flight state: pending dispatches, decisions, open questions</td><td>Every session</td></tr>
+  <tr><td><span class="pill pill-gray">slow</span></td><td>Registry file(s)</td><td>Stable record: milestones, decisions, installed skills</td><td>Per milestone / skill change</td></tr>
+  <tr><td><span class="pill pill-purple">skills</span></td><td><code>{namespace}:*</code> in <code>skills/</code></td><td>Platform-agnostic capabilities</td><td>When capability is added</td></tr>
+</table>
+
+<h2>Domain status</h2>
+<table>
+  <tr><th>Domain</th><th>Session notes</th><th>Registry</th><th>Skills</th><th>Primary platform</th></tr>
+  <tr><td>Research</td><td><code>RESEARCH_SESSION_NOTES.md</code></td><td>progress log (growing)</td><td>research:* (growing)</td><td>Claude</td></tr>
+  <tr><td>Teaching</td><td><code>TEACHING_SESSION_NOTES.md</code></td><td><code>SKILLS_MANIFEST.md</code></td><td>course:* · 7 active</td><td>Claude</td></tr>
+  <tr><td>Admin</td><td><code>{PROJECT}_SESSION_NOTES.md</code></td><td>project progress + decisions</td><td>admin:* (project-specific)</td><td>Claude + Manus</td></tr>
+  <tr><td>WebDev</td><td><code>WEBDEV_SESSION_NOTES.md</code></td><td><code>SKILLS_MANIFEST.md</code></td><td>webdev:* · 6 active</td><td>Manus</td></tr>
+  <tr><td>Home</td><td><code>HOME_SESSION_NOTES.md</code></td><td>(not yet)</td><td>—</td><td>Claude</td></tr>
+</table>
+
+<h2>Skill namespaces</h2>
+<table>
+  <tr><th>Namespace</th><th>Examples</th><th>Primary domain</th><th>Cross-domain?</th></tr>
+  <tr><td><span class="pill pill-purple">(universal)</span></td><td><code>session-handover</code>, <code>web-release-workflow</code>, <code>skill-builder</code></td><td>All</td><td>Yes — always</td></tr>
+  <tr><td><span class="pill pill-purple">course:</span></td><td><code>course:slide-builder</code>, <code>course:exam-generator</code></td><td>Teaching</td><td>Yes — on demand</td></tr>
+  <tr><td><span class="pill pill-purple">webdev:</span></td><td><code>webdev:static-site-i18n</code>, <code>webdev:smoke-test</code></td><td>WebDev</td><td>Yes — on demand</td></tr>
+  <tr><td><span class="pill pill-purple">research:</span></td><td><code>research:lit-review</code>, <code>research:data-viz</code></td><td>Research</td><td>Yes — on demand</td></tr>
+</table>
+
+<h2>Adapter pattern</h2>
+<table>
+  <tr><th>Platform</th><th>Adapter script</th><th>Input</th><th>Output</th><th>Validator</th></tr>
+  <tr><td>Claude</td><td><code>adapters/claude/wrap_skill.py</code></td><td><code>skill.md</code></td><td><code>name.skill</code></td><td><code>audit_skill.py</code></td></tr>
+  <tr><td>Manus</td><td><code>adapters/manus/wrap_skill.py</code></td><td><code>skill.md</code></td><td><code>SKILL.md</code> (with YAML frontmatter)</td><td><code>quick_validate.py</code></td></tr>
+</table>
+<p class="note">Skills are written once in platform-agnostic Markdown (<code>skill.md</code>). Adapters add platform-specific metadata. Never edit the output files directly.</p>
+
+<h2>Repository structure</h2>
+<table>
+  <tr><th>Path</th><th>Contains</th><th>Replaces</th></tr>
+  <tr><td><code>bieri-ai/architecture/</code></td><td>This document · design principles · <code>BIERI_AI.md</code> bootstrap</td><td><code>bieri-claude/architecture/</code></td></tr>
+  <tr><td><code>bieri-ai/domains/</code></td><td>Session notes + registries per domain</td><td>Project Knowledge files</td></tr>
+  <tr><td><code>bieri-ai/skills/</code></td><td>All skills in <code>skill.md</code> format</td><td><code>bieri-teaching/</code> + <code>bieri-manus/</code></td></tr>
+  <tr><td><code>bieri-ai/adapters/</code></td><td>Platform-specific wrappers</td><td><code>bieri-claude/tools/</code></td></tr>
+  <tr><td><code>bieri-ai/tools/</code></td><td>Universal scripts (<code>sync-meta.sh</code>, <code>build_kb.py</code>)</td><td><code>bieri-claude/tools/</code> + <code>bieri-teaching/scripts/</code></td></tr>
+</table>
+<p class="note">Repos live at <code>~/GitHub/bieri-ai/</code> — outside OneDrive to avoid sync conflicts.</p>
+
+<h2>Cross-platform session handover</h2>
+<table>
+  <tr><th>Platform</th><th>Reads state from</th><th>Writes state to</th></tr>
+  <tr><td>Claude</td><td>Project Knowledge (<code>{DOMAIN}_SESSION_NOTES.md</code>)</td><td>Project Knowledge at session end</td></tr>
+  <tr><td>Manus</td><td>Attached repo (<code>domains/{domain}/SESSION_NOTES.md</code>)</td><td>Commits + pushes to repo before task ends</td></tr>
+</table>
+<p class="note">This enables cross-platform continuity: start in Claude, note a blocker, pick up in Manus (or vice versa).</p>
+
+<h2>Core rules</h2>
+<div class="rule">Read <code>{DOMAIN}_SESSION_NOTES.md</code> before doing anything in a new session — on any platform.</div>
+<div class="rule">Write <code>{DOMAIN}_SESSION_NOTES.md</code> before ending any substantive session — on any platform.</div>
+<div class="rule">Any skill change must update <code>SKILLS_MANIFEST.md</code> in the relevant domain before the session closes.</div>
+<div class="rule">Skills MUST be written in platform-agnostic Markdown (<code>skill.md</code>). Use adapters to generate platform-specific formats.</div>
+<div class="rule">Run the appropriate validator after wrapping: <code>audit_skill.py</code> (Claude) or <code>quick_validate.py</code> (Manus).</div>
+
+<h2>Migration roadmap</h2>
+<table>
+  <tr><th>Phase</th><th>Action</th><th>Effort</th><th>Outcome</th></tr>
+  <tr><td>1. Acknowledge</td><td>Update existing architecture to include Manus/WebDev domain</td><td>30 min</td><td>Unified mental model</td></tr>
+  <tr><td>2. Standardize</td><td>Write next new skill in <code>skill.md</code> format first; wrap manually</td><td>Per skill</td><td>Proof of concept</td></tr>
+  <tr><td>3. Adapt</td><td>Write adapter scripts; backport existing skills to <code>skill.md</code></td><td>2–3 hours</td><td>Dual-platform skills</td></tr>
+  <tr><td>4. Consolidate</td><td>Create <code>bieri-ai</code> monorepo; move all domains, skills, tools</td><td>Half day</td><td>Single source of truth</td></tr>
+  <tr><td>5. Automate</td><td>GitHub Action auto-generates <code>.skill</code> + <code>SKILL.md</code> on push</td><td>1 hour</td><td>Zero-friction maintenance</td></tr>
+</table>
+
+<footer>
+  Bieri · AI Ecosystem Architecture (Unified) · v2.0 · 2026-06-10 ·
+  Skills: <code>bieri-ai/skills/</code> ·
+  Source: <code>session-handover</code> + <code>web-release-workflow</code>
+</footer>
+
+</body>
+</html>
