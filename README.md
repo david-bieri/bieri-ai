@@ -53,3 +53,45 @@ Example: `./tools/new-project.sh webdev AGW "AGW Conference Site"`
 1. Copy `templates/skill_template.md` to `skills/<namespace>-<name>/skill.md`
 2. Write the skill logic in platform-agnostic Markdown.
 3. Use the appropriate adapter in `adapters/` to generate the platform-specific format.
+
+### Package skills for deployment
+```bash
+# For Claude (produces .skill ZIP)
+python adapters/claude/wrap_skill.py skills/<name>
+
+# For Manus (produces SKILL.md directory)
+python adapters/manus/wrap_skill.py skills/<name>
+
+# Wrap all skills at once (Manus)
+python adapters/manus/wrap_skill.py --all
+```
+
+---
+
+## Skills Inventory
+
+### Universal
+| Skill | Purpose |
+|-------|--------|
+| `session-handover` | Session state management across all domains |
+| `web-release-workflow` | Orchestrator for merge/deploy ceremonies |
+
+### Teaching (`teaching-*`)
+| Skill | Purpose | Bundled Resources |
+|-------|---------|-------------------|
+| `teaching-news-hooks` | "In the news" slide search and formatting | — |
+| `teaching-build-kb` | PPTX → KB extraction | `scripts/build_kb.py` |
+| `teaching-video-scripts` | Narration scripts at 130 wpm | — |
+| `teaching-compose-slides` | Lecture decks in house style | `references/house-style.md`, `references/slide-library.md` |
+| `teaching-assess-from-kb` | Assessment generation from KB | — |
+| `teaching-skill-builder` | Skill library creation and maintenance | `scripts/audit_skill.py` |
+
+### WebDev (`webdev-*`)
+| Skill | Purpose |
+|-------|--------|
+| `webdev-static-site-i18n` | Multilingual static site management |
+| `webdev-d3-analytics-modules` | D3/React analytics dashboards |
+| `webdev-json-data-enrichment` | JSON dataset transformation |
+| `webdev-latex-pdf-guide` | LaTeX user guide compilation |
+| `webdev-cross-browser-smoke-test` | Structured QA testing |
+| `webdev-contact-protocol-links` | Zero-infrastructure contact channels |
