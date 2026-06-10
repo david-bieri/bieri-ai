@@ -68,6 +68,30 @@ python adapters/manus/wrap_skill.py --all
 
 ---
 
+## Core Workflows
+
+For full governance rules, see [CONTRIBUTING.md](CONTRIBUTING.md).
+
+### 1. The Session Handover
+Whenever you start or end an AI session (Claude chat or Manus task):
+1. **Start:** Upload or attach the relevant domain's `{PREFIX}_SESSION_NOTES.md`. Ask the AI to read it to restore context.
+2. **End:** Ask the AI to summarize the session's accomplishments and update `{PREFIX}_SESSION_NOTES.md`.
+3. **Commit:** Push the updated notes to GitHub before closing the window.
+
+### 2. The Skill Creation Loop
+When you notice a repeatable pattern:
+1. Run `./tools/new-project.sh` or copy `templates/skill_template.md` to create `skills/<name>/skill.md`.
+2. Write the skill instructions in platform-agnostic Markdown.
+3. Update the `SKILLS_MANIFEST.md` in the relevant domain.
+4. Run the appropriate adapter (see "Package skills for deployment" above).
+5. Commit and push.
+
+### 3. The Deployment Loop
+- **Claude:** Upload the generated `.skill` ZIP file to Claude Desktop (Cowork → Customize → Skills → + → upload).
+- **Manus:** Attach the `bieri-ai` GitHub repository to your Manus task. Manus will automatically discover the wrapped skills in `dist/manus/` (if committed) or you can instruct Manus to run the wrapper script itself.
+
+---
+
 ## Skills Inventory
 
 ### Universal
