@@ -1,3 +1,9 @@
+---
+name: webdev-messaging-inapp-sms
+description: "Add a unified messaging feed to a Vite+Express web app. In-app posts and inbound SMS via Twilio, with a nav badge that tracks unread messages via localStorage. Use when building a message board, family/team inbox, or any app that needs to receive SMS alongside in-app posts. Covers Supabase schema, backend routes, TwiML response pattern, localStorage unread tracking, and Twilio setup."
+version: "1.0"
+---
+
 # webdev:messaging-inapp-sms
 _v1.0_
 

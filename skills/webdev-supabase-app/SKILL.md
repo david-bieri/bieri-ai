@@ -1,3 +1,9 @@
+---
+name: supabase-app
+description: "Design, migrate, and manage Supabase PostgreSQL schemas for full-stack web apps. Use when building or evolving a Supabase-backed application. Covers defining tables with RLS, writing migration SQL, applying migrations via the Perplexity Supabase connector, generating TypeScript types, handling env configuration, and implementing real-time sync. Covers free-tier constraints, index design, and migration workflow."
+version: "1.1"
+---
+
 # webdev:supabase-app
 _v1.1 — adds Perplexity connector migration pattern_
 

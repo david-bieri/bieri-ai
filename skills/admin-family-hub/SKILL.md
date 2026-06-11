@@ -1,3 +1,9 @@
+---
+name: family-hub
+description: "Build and maintain a full-stack family administration web app. Covers event calendar with recurrence, category management, email inbox scanning, vaccination tracking, pet management, messaging (in-app + inbound SMS), shareable read-only calendar links, and Supabase backend. Use when building a household management system or multi-member shared calendar app with email intake."
+version: "1.2"
+---
+
 # admin:family-hub
 _v1.2 — adds messaging module, nav badges, clickable dashboard tiles_
 
