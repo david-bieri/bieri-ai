@@ -16,9 +16,10 @@
 | `webdev-cross-browser-smoke-test` | 1.0.0 | Active | 2026-06-10 |
 | `webdev-contact-protocol-links` | 1.0.0 | Active | 2026-06-10 |
 | `webdev-supabase-app` | 1.0.0 | Active | 2026-06-10 |
-| `webdev-vite-express` | 1.0.0 | Active | 2026-06-10 |
-| `webdev-deploy-render` | 1.0.0 | Active | 2026-06-10 |
+| `webdev-vite-express` | 1.1.0 | Active | 2026-06-11 |
+| `webdev-deploy-render` | 1.1.0 | Active | 2026-06-11 |
 | `webdev-platform-migration` | 1.0.0 | Active | 2026-06-10 |
+| `webdev-node-build-pitfalls` | 1.0.0 | Active | 2026-06-11 |
 
 ---
 
@@ -36,6 +37,9 @@
 ### Core Stack
 `webdev-vite-express` → `webdev-supabase-app` → `webdev-deploy-render`
 
+### CI/CD Troubleshooting
+`webdev-node-build-pitfalls` (load when build passes locally but fails on Render/CI)
+
 ### Migration Path
 `webdev-platform-migration` (orchestrates the above for cloud handoff)
 
@@ -52,3 +56,6 @@
 | 2026-06-10 | Added | `webdev-vite-express` v1.0.0 — Vite + React + Express monorepo |
 | 2026-06-10 | Added | `webdev-deploy-render` v1.0.0 — Render Web Service + Cron |
 | 2026-06-10 | Added | `webdev-platform-migration` v1.0.0 — portability audit + migration |
+| 2026-06-11 | Updated | `webdev-vite-express` v1.1.0 — tailwind.config.js rule, Node version floor, tsx .bin fix, plugin dep placement |
+| 2026-06-11 | Updated | `webdev-deploy-render` v1.1.0 — nodeVersion required, VITE_ env var trap, Exited-status-1 diagnosis table |
+| 2026-06-11 | Added | `webdev-node-build-pitfalls` v1.0.0 — 7 CI build pitfalls with symptom/cause/fix + pre-deploy checklist |

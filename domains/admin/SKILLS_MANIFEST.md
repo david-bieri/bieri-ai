@@ -8,8 +8,8 @@
 
 | Skill | Version | Status | Updated |
 |-------|---------|--------|---------|
-| `admin-cron-agent` | 1.0.0 | Active | 2026-06-10 |
-| `admin-gmail-scanner` | 1.0.0 | Active | 2026-06-10 |
+| `admin-cron-agent` | 1.1.0 | Active | 2026-06-11 |
+| `admin-gmail-scanner` | 1.1.0 | Active | 2026-06-11 |
 | `admin-tag-parser` | 1.0.0 | Active | 2026-06-10 |
 | `admin-family-hub` | 1.0.0 | Active | 2026-06-10 |
 
@@ -65,3 +65,5 @@ admin-family-hub
 | 2026-06-10 | Added | `admin-gmail-scanner` v1.0.0 — Gmail intake pipeline |
 | 2026-06-10 | Added | `admin-tag-parser` v1.0.0 — `#TAG @Name` subject-line classifier |
 | 2026-06-10 | Added | `admin-family-hub` v1.0.0 — full household management app |
+| 2026-06-11 | Updated | `admin-cron-agent` v1.1.0 — hosted app pattern (POST to public URL) documented as first-class; Render cold-start timeout note |
+| 2026-06-11 | Updated | `admin-gmail-scanner` v1.1.0 — Step 4 split into hosted vs sandbox branches; 60s timeout for Render free tier |
