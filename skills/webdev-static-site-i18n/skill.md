@@ -1,4 +1,4 @@
-# Static Site i18n & Management
+# webdev:static-site-i18n
 
 This skill defines the core architecture for managing a multi-page static website with client-side internationalization (i18n) and shared UI patterns. It is designed to keep the site entirely static (no backend) while maintaining consistency across pages.
 

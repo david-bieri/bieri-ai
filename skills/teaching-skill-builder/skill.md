@@ -1,7 +1,7 @@
 
-# course:skill-builder
+# teaching:skill-builder
 
-Creates, audits, and maintains teaching skills in the `course:` namespace.
+Creates, audits, and maintains teaching skills in the `teaching:` namespace.
 
 ---
 
@@ -39,7 +39,7 @@ Files must NOT be directly in the ZIP root — the skill folder must be the root
 
 ---
 
-## Our conventions (course: namespace)
+## Our conventions (teaching: namespace)
 
 Additional frontmatter fields we use beyond the official spec:
 
@@ -47,7 +47,7 @@ Additional frontmatter fields we use beyond the official spec:
 version: "1.0.1"          # semantic: major.minor.patch
 created: "YYYY-MM-DD"      # immutable
 updated: "YYYY-MM-DD"      # bump on every change
-depends_on: []             # other course: skills this one calls or requires
+depends_on: []             # other teaching: skills this one calls or requires
 used_by: []                # reverse index — which skills call this one
 manifest_update: "..."     # enforcement reminder (same text on every skill)
 ```
@@ -76,18 +76,18 @@ Extract from the conversation:
 
 ```
 ---
-name: course:skill-name
+name: teaching:skill-name
 description: >
   [≤200 chars. Core trigger statement. "Use for X, Y, Z."]
 version: "1.1.1"
 created: "YYYY-MM-DD"
 updated: "YYYY-MM-DD"
-depends_on: [list of course: skills required]
+depends_on: [list of teaching: skills required]
 used_by: []
 manifest_update: "After any change to this skill, update version, updated date, and SKILLS_MANIFEST.md before closing the session."
 ---
 
-# course:skill-name
+# teaching:skill-name
 
 [One-line summary]
 
@@ -244,16 +244,16 @@ Skills live as source in the pillar repo, packaged on demand:
   shared-skills/session-handover/
 ```
 
-## Known skills in the course: library
+## Known skills in the teaching: library
 
 | Skill | Purpose |
 |-------|---------|
-| `course:news-hooks` | "In the news" slide search and formatting |
-| `course:build-kb` | PPTX → KB extraction via build_kb.py |
-| `course:video-scripts` | Narration script generation (130 wpm) |
-| `course:compose-slides` | Lecture deck composition in house style |
-| `course:assess-from-kb` | Assessment generation from KB content |
-| `course:skill-builder` | This skill — library creation and maintenance |
+| `teaching:news-hooks` | "In the news" slide search and formatting |
+| `teaching:build-kb` | PPTX → KB extraction via build_kb.py |
+| `teaching:video-scripts` | Narration script generation (130 wpm) |
+| `teaching:compose-slides` | Lecture deck composition in house style |
+| `teaching:assess-from-kb` | Assessment generation from KB content |
+| `teaching:skill-builder` | This skill — library creation and maintenance |
 
 Manifest: `SKILLS_MANIFEST.md` in Project knowledge.
 Storage: `OneDrive - Virginia Tech/Teaching/Skills/`

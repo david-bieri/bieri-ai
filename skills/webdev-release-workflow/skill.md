@@ -1,4 +1,4 @@
-# Web Release Workflow
+# webdev:release-workflow
 
 This skill is an **orchestrator**. It defines the sequence of steps for releasing a web project but delegates implementation details to specialized domain skills. Do not duplicate content from those skills here — read and invoke them at the appropriate step.
 

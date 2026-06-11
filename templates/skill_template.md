@@ -1,14 +1,4 @@
----
-name: {namespace}:{skill-name}
-description: >
-  {≤200 chars. What it does. "Use for X, Y, Z."}
-version: "1.0.0"
-created: "{YYYY-MM-DD}"
-updated: "{YYYY-MM-DD}"
-depends_on: []
-used_by: []
-manifest_update: "After any change to this skill, update version, updated date, and the relevant SKILLS_MANIFEST.md before closing the session."
----
+<!-- No YAML frontmatter — adapters add it (CONTRIBUTING §3). Authored metadata (description, version, depends_on, used_by) lives in metadata.yaml beside this skill. -->
 
 # {namespace}:{skill-name}
 
@@ -18,7 +8,7 @@ manifest_update: "After any change to this skill, update version, updated date, 
 
 ## When to invoke
 
-Trigger on: {concrete trigger phrases and contexts — overflow from the 200-char description}.
+Trigger on: {concrete trigger phrases and contexts — the overflow from the metadata.yaml description}.
 
 ---
 
@@ -36,7 +26,7 @@ Trigger on: {concrete trigger phrases and contexts — overflow from the 200-cha
 
 ## Output format
 
-{Describe what Claude should produce: file, code block, table, etc.}
+{Describe what the skill should produce: file, code block, table, etc.}
 
 ---
 

@@ -1,4 +1,4 @@
-# Systematic Smoke Testing
+# webdev:cross-browser-smoke-test
 
 This skill defines a rigorous methodology for testing static sites and interactive web applications before merging branches.
 

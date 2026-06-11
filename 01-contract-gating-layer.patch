@@ -1,0 +1,909 @@
+diff --git a/NORMALIZATION_PLAN.md b/NORMALIZATION_PLAN.md
+new file mode 100644
+index 0000000..0ec74b5
+--- /dev/null
++++ b/NORMALIZATION_PLAN.md
+@@ -0,0 +1,241 @@
++# bieri-ai — Contract Normalization Plan
++
++**Status:** PROPOSAL — for review. No repository files have been edited yet.
++**Author:** Claude (audit + plan), pending David's approval to execute.
++**Scope:** Clean the skill "contract" so the library is consistently identified,
++authored, and wrapped — the precondition for stackable, recombinable skills.
++
++---
++
++## 0. Decisions locked (David, this session)
++
++1. **Identity form:** directories stay **hyphenated**; in-skill identity is **colon-namespaced**.
++2. **Namespace set:** `admin:`, `teaching:`, `research:`, `webdev:`, and **`home:` reserved** (pillar exists, no skills yet). Universal infrastructure stays **bare** (`session-handover`).
++3. **`web-release-workflow` reclassified** to `webdev:release-workflow`.
++4. **Template** fixed to drop YAML frontmatter (matches CONTRIBUTING §3).
++5. **Wrapped artifacts** live only in git-ignored `dist/`; never committed beside source.
++6. **The six paired reconciliations** are owned by **Claude** (this plan).
++7. **The two orphans** (`webdev-messaging-inapp-sms`, `webdev-node-build-pitfalls`) are owned by **Perplexity** (out of scope here).
++
++---
++
++## 1. The canonical contract (target state)
++
++A skill is **one source of truth** (`skills/<dir>/skill.md`) plus optional
++`references/` and `scripts/`. Everything else is generated.
++
++| Rule | Statement |
++|------|-----------|
++| **Directory** | `<namespace>-<name>` (hyphenated), e.g. `teaching-news-hooks`. |
++| **Identity**  | `<namespace>:<name>` (colon), e.g. `teaching:news-hooks`. Appears as the `skill.md` H1 **and** is emitted by the adapter as `name:`. |
++| **Namespaces** | `admin:`, `teaching:`, `research:`, `webdev:`, `home:`. Universal infra = bare name, no namespace. |
++| **Source frontmatter** | **None.** `skill.md` is pure Markdown. (CONTRIBUTING §3.) |
++| **Authored metadata** | `description`, `version`, `depends_on`, `used_by` live in a `metadata.yaml` sidecar (see §6, decision pending). |
++| **Wrapped artifact** | Generated into `dist/claude/` (git-ignored). Never committed in `skills/`. |
++| **Manifest** | Each domain's `SKILLS_MANIFEST.md` is the slow-layer source of truth; README inventory mirrors it. |
++
++---
++
++## 2. Root cause of the identity drift — the adapter
++
++`adapters/claude/wrap_skill.py :: infer_metadata()` derives the deployed `name`
++from the directory prefix, with hardcoded mappings that are the actual source of
++the drift:
++
++```
++teaching-*  -> "course:" + rest      # re-injects the OLD namespace
++webdev-*    -> dir name as-is         # hyphenated, never colon
++else        -> dir name as-is         # admin-cron-agent, not admin:cron-agent
++```
++
++**Consequence:** editing the H1 inside any `skill.md` is cosmetic — the adapter
++overwrites identity at wrap time. Issue #1 is therefore fixed **in the adapter
++first**, then mirrored in the H1s for human readability and to stop the two from
++disagreeing again.
++
++Two further defects in the same function:
++
++- **Description is scraped**, not authored: it takes the first paragraph after the
++  H1, truncated to 200 chars. For contract-conformant skills (H1 immediately
++  followed by `## When to invoke`) the scrape returns empty and falls back to
++  `"Skill: <dir>"` — a non-functional trigger string. Triggering quality depends
++  on this field, so this silently degrades every such skill.
++- **`version` / `depends_on` / `used_by` are dropped** (hardcoded `1.0.0`, empty
++  lists) unless a `metadata.yaml` sidecar is present — and none exist. The
++  composition graph that makes skills recombinable never reaches the artifact.
++
++---
++
++## 3. Workstream A — Adapter rewrite (mechanism for issue #1)
++
++Edit `adapters/claude/wrap_skill.py`:
++
++1. **Name mapping** — replace the hardcoded branch with prefix-driven colon
++   namespacing:
++
++   ```python
++   NAMESPACES = {"admin", "teaching", "research", "webdev", "home"}
++   prefix, _, rest = skill_dir.name.partition("-")
++   if prefix in NAMESPACES and rest:
++       meta["name"] = f"{prefix}:{rest}"
++   else:
++       meta["name"] = skill_dir.name   # bare universal, e.g. session-handover
++   ```
++
++2. **ZIP folder name** — stop mashing colons out (`coursenews-hooks`). Use the
++   hyphenated directory name for the ZIP folder and `.skill` filename, while the
++   frontmatter `name:` keeps the colon:
++
++   ```python
++   zip_folder_name = skill_dir.name   # teaching-news-hooks/ ; teaching-news-hooks.skill
++   ```
++
++3. **Description / version / graph** — see §6 (pending decision). The name and
++   ZIP-folder fixes are unblocked and can ship immediately.
++
++**Validation:** after the rewrite, dry-run-wrap every skill and confirm the
++emitted `name:` equals the canonical identity in the table below.
++
++---
++
++## 4. Workstream B — In-file identity normalization
++
++Align each `skill.md` H1 (and any in-body self-reference) to the canonical
++identity, so source and artifact agree. Directories unchanged.
++
++| Directory | Current H1 | → Canonical identity |
++|---|---|---|
++| teaching-assess-from-kb | `course:assess-from-kb` | `teaching:assess-from-kb` |
++| teaching-build-kb | `course:build-kb` | `teaching:build-kb` |
++| teaching-compose-slides | `course:compose-slides` | `teaching:compose-slides` |
++| teaching-news-hooks | `course:news-hooks` | `teaching:news-hooks` |
++| teaching-skill-builder | `course:skill-builder` | `teaching:skill-builder` |
++| teaching-video-scripts | `course:video-scripts` | `teaching:video-scripts` |
++| webdev-contact-protocol-links | "Contact Protocol Links" | `webdev:contact-protocol-links` |
++| webdev-cross-browser-smoke-test | "Systematic Smoke Testing" | `webdev:cross-browser-smoke-test` |
++| webdev-d3-analytics-modules | "D3 Analytics Modules" | `webdev:d3-analytics-modules` |
++| webdev-json-data-enrichment | "JSON Data Enrichment" | `webdev:json-data-enrichment` |
++| webdev-latex-pdf-guide | "LaTeX PDF Guide & Web Delivery" | `webdev:latex-pdf-guide` |
++| webdev-static-site-i18n | "Static Site i18n & Management" | `webdev:static-site-i18n` |
++| web-release-workflow → **rename dir** to `webdev-release-workflow` | "Web Release Workflow" | `webdev:release-workflow` |
++
++Already canonical (no edit): `admin:cron-agent`, `admin:family-hub`,
++`admin:gmail-scanner`, `admin:tag-parser`, `webdev:deploy-render`,
++`webdev:platform-migration`, `webdev:supabase-app`, `webdev:vite-express`,
++`session-handover`.
++
++**Note on the reclassification:** `web-release-workflow` is renamed to
++`webdev-release-workflow` so the adapter prefix rule produces `webdev:release-workflow`
++automatically. Update its references in the README and any manifest.
++
++---
++
++## 5. Workstream C — Template fix
++
++`templates/skill_template.md` currently leads with an 11-line YAML frontmatter
++block, contradicting CONTRIBUTING §3 and every actual source file. Fix:
++
++- Delete the frontmatter block; the file starts at `# {namespace}:{skill-name}`.
++- Add one line at top: `<!-- No YAML frontmatter — adapters add it (CONTRIBUTING §3). Metadata lives in metadata.yaml. -->`
++- Keep the body sections (`When to invoke`, `Workflow`, `Output format`, `QA checklist`).
++
++---
++
++## 6. Workstream D — Artifact hygiene + the six reconciliations
++
++`.gitignore` already excludes `dist/`, so the only violations are committed
++`SKILL.md` files sitting inside `skills/<dir>/`. These are **not** stale adapter
++output — they are independently authored (Perplexity-style) variants, several of
++which are **ahead** of the source. Deleting them blindly destroys real content.
++
++**Reconciliation principle:** *source skeleton + wrapped flesh.* The bieri-ai
++contract structure is canonical (`## When to invoke`, `## Workflow`, `## QA
++checklist`, terse imperative voice, **no frontmatter**). The wrapped variants use
++a different convention (`## When to Use This Skill`, `## Step-by-Step
++Instructions`, verbose "Load this skill when:" bullets, embedded frontmatter with
++sometimes-wrong `domain:`) — that convention is discarded; only the substantive
++technical content they add is merged in, plus any hand-authored description (which
++becomes the sidecar `description`). All wrapped frontmatter is discarded.
++
++| Skill | Pattern | Preserve from source | Merge in from wrapped |
++|---|---|---|---|
++| **admin-cron-agent** | two-way | `## QA checklist`, `## Migration note`, contract headings | `## Hosted App Pattern (Render/Railway/Fly.io)`; expanded Single-Invocation / Token-Isolation detail. (Wrapped `domain: universal` is wrong → discard; it's `admin`.) |
++| **admin-family-hub** | clean superset (wrapped v1.2, no source-unique sections) | contract structure | Dashboard member tiles, Messaging module, Nav badge system, Architecture, Backend routes, Frontend unread-badge, Twilio setup |
++| **admin-gmail-scanner** | two-way | `## QA checklist`, contract headings | `## Cron Schedule`, `## Notification Format`, expanded step detail |
++| **webdev-deploy-render** | two-way (wrapped much richer) | `## QA checklist`, contract headings, Render-vs-sandbox-cron note | Auto-Deploy from GitHub, "Diagnosing Exited with status 1", `render.yaml` with `nodeVersion`, Cron Endpoint/Script, expanded setup steps |
++| **webdev-supabase-app** | inline enrichment (same sections, richer within) | structure | v1.1 additions: Perplexity-Supabase-connector migration pattern, idempotent SQL, dual id-column (nanoid/text vs uuid) patterns |
++| **webdev-vite-express** | two-way (wrapped much richer) | `## QA checklist`, contract headings | Tailwind v3 setup (incl. "never install `@tailwindcss/vite`", plugins in `dependencies`), Docker, Build-Script-and-tsx, Node-version, config file examples |
++
++After each merge: confirm identity (§4), then **delete** the in-place `SKILL.md`.
++Re-wrapping (§3) regenerates it into `dist/claude/`.
++
++---
++
++## 7. Workstream E — README / manifest / architecture-doc sync
++
++- **README "Skills Inventory":** stale. WebDev table lists 6 of ~12; Admin's 4
++  skills absent; Universal lists `web-release-workflow` (now `webdev:`). Rebuild
++  all inventory tables from the actual roster.
++- **Domain manifests:** ensure each `SKILLS_MANIFEST.md` Installed-Skills table
++  matches the skills in that namespace and uses colon identities; append an Update
++  Log entry noting the normalization. (`research` manifest stays empty — greenfield.)
++- **`architecture/BIERI_AI.md` "Skill Namespaces":** currently lists `course:*`
++  for Teaching. Update to `teaching:*`, add `home:*`, and state that universal
++  skills are bare.
++
++---
++
++## 8. Flagged decisions (need David's call before execution)
++
++These are implied by the contract but your four issues didn't settle them:
++
++- **D1 — Description source.** Adopt `metadata.yaml` sidecars carrying an authored
++  `description` (the ≤200-char "Use for X, Y, Z" trigger), so triggering stops
++  depending on a broken scrape? (Recommended.) Alternative: designate the first
++  post-H1 paragraph as the canonical description by convention and write it
++  deliberately in every skill.
++- **D2 — Version + graph propagation.** Same sidecar carries `version`,
++  `depends_on`, `used_by` so the composition graph survives wrapping? (Recommended —
++  this is what makes stackability real at the artifact level.)
++- **D3 — ZIP-folder naming.** Confirm switching the ZIP folder / `.skill` filename
++  to the hyphenated dir name (`teaching-news-hooks.skill`) instead of the
++  colon-stripped mash (`coursenews-hooks.skill`).
++
++D1 and D2 point at the same `metadata.yaml` sidecar; adopting it resolves both and
++makes the adapter's metadata handling deterministic instead of inferred.
++
++---
++
++## 9. Sequencing
++
++1. **Template fix** (C) — cheap; stops new skills entering drifted.
++2. **Adapter rewrite** (A, name + ZIP-folder) — the mechanism for #1.
++3. **In-file identity** (B) — including the `web-release-workflow` dir rename.
++4. **Six reconciliations** (D) — merge, normalize identity, delete in-place `SKILL.md`.
++5. **Sidecars** (D1/D2) — if approved.
++6. **Docs sync** (E) — last; reflects final state.
++7. **Verification** (§10).
++
++---
++
++## 10. Verification checklist
++
++- [ ] `infer_metadata` emits the canonical colon identity for every skill (dry-run wrap, diff against §4 table).
++- [ ] No `skills/*/SKILL.md` remain (only `skill.md` + `references/` + `scripts/`).
++- [ ] No `skill.md` contains YAML frontmatter.
++- [ ] Every `skill.md` H1 matches its canonical identity.
++- [ ] `web-release-workflow` directory renamed; references updated.
++- [ ] README inventory, domain manifests, and `BIERI_AI.md` namespaces match the actual roster.
++- [ ] (If D1/D2 approved) every skill has a `metadata.yaml`; wrapped artifacts carry authored description + version + graph.
++- [ ] `audit_skill.py` passes on every wrapped artifact.
++
++---
++
++## 11. Out of scope (dependencies)
++
++- **Orphans** `webdev-messaging-inapp-sms`, `webdev-node-build-pitfalls`: Perplexity
++  reconstructs platform-agnostic `skill.md`. This plan reserves their identities
++  (`webdev:messaging-inapp-sms`, `webdev:node-build-pitfalls`) and will fold them
++  into the README/manifest sync once their source exists.
++- **`audit_skill.py` rules:** assumed current. If the description/identity rules
++  change as a result of D1–D3, update the auditor to match.
+diff --git a/adapters/claude/wrap_skill.py b/adapters/claude/wrap_skill.py
+index 3058201..1429e26 100644
+--- a/adapters/claude/wrap_skill.py
++++ b/adapters/claude/wrap_skill.py
+@@ -7,13 +7,17 @@ into a Claude-compatible .skill package (ZIP with YAML frontmatter SKILL.md).
+ 
+ Usage:
+     python adapters/claude/wrap_skill.py skills/<name>
+-    python adapters/claude/wrap_skill.py skills/<name> --output dist/
+-
+-The output is a .skill ZIP file ready for upload to Claude Desktop:
+-    Claude Desktop → Cowork → Customize → Skills → + → upload
+-
+-Frontmatter fields are read from a metadata.yaml sidecar file if present,
+-or inferred from the skill.md content and directory name.
++    python adapters/claude/wrap_skill.py skills/<name> --output dist/claude
++
++Identity contract:
++    `name` is ALWAYS derived from the directory name (the single source of
++    truth) so a sidecar can never reintroduce namespace drift:
++        teaching-news-hooks      -> teaching:news-hooks
++        webdev-supabase-app      -> webdev:supabase-app
++        admin-cron-agent         -> admin:cron-agent
++        session-handover         -> session-handover   (bare / universal)
++    Authored metadata (description, version, dates, depends_on, used_by) is
++    read from a metadata.yaml sidecar beside skill.md when present.
+ """
+ import argparse
+ import re
+@@ -22,113 +26,99 @@ import zipfile
+ from datetime import date
+ from pathlib import Path
+ 
++NAMESPACES = {"admin", "teaching", "research", "webdev", "home"}
++
++
++# ── Identity ───────────────────────────────────────────────────────────────
+ 
+-# ── Metadata extraction ────────────────────────────────────────────────────
++def canonical_name(dir_name: str) -> str:
++    """Derive the colon-namespaced identity from the hyphenated directory name."""
++    prefix, _, rest = dir_name.partition("-")
++    if prefix in NAMESPACES and rest:
++        return f"{prefix}:{rest}"
++    return dir_name  # bare / universal skills (e.g. session-handover)
+ 
+-def infer_metadata(skill_dir: Path, content: str) -> dict:
+-    """Infer Claude YAML frontmatter from skill.md content and directory name."""
++
++# ── Metadata ───────────────────────────────────────────────────────────────
++
++def read_metadata_sidecar(skill_dir: Path) -> dict:
++    """Read metadata.yaml sidecar if it exists (flat key-value + simple lists)."""
++    sidecar = skill_dir / "metadata.yaml"
++    if not sidecar.exists():
++        return {}
+     meta = {}
++    for line in sidecar.read_text().splitlines():
++        line = line.rstrip()
++        if not line or line.lstrip().startswith("#") or ":" not in line:
++            continue
++        key, val = line.split(":", 1)
++        key, val = key.strip(), val.strip()
++        if val.startswith("[") and val.endswith("]"):
++            val = [v.strip().strip('"').strip("'")
++                   for v in val[1:-1].split(",") if v.strip()]
++        else:
++            val = val.strip('"').strip("'")
++        meta[key] = val
++    return meta
+ 
+-    # Name: derive from directory name
+-    dir_name = skill_dir.name
+-    # Convert "teaching-news-hooks" → "course:news-hooks"
+-    # Convert "webdev-static-site-i18n" → "webdev:static-site-i18n"
+-    # Convert "session-handover" → "session-handover"
+-    if dir_name.startswith("teaching-"):
+-        meta["name"] = "course:" + dir_name[len("teaching-"):]
+-    elif dir_name.startswith("webdev-"):
+-        meta["name"] = dir_name  # keep as-is for webdev skills
+-    else:
+-        meta["name"] = dir_name
+ 
+-    # Description: extract from first paragraph after the title
+-    # Look for text between the title and the first ## heading
++def scrape_description(content: str) -> str:
++    """Fallback only: first prose paragraph after the H1, capped at 200 chars."""
+     lines = content.split("\n")
+-    desc_lines = []
+-    in_desc = False
++    desc, in_body = [], False
+     for line in lines:
+-        if line.startswith("# ") and not in_desc:
+-            in_desc = True
++        if line.startswith("# ") and not in_body:
++            in_body = True
+             continue
+-        if in_desc:
+-            if line.startswith("##") or line.startswith("---"):
+-                break
++        if in_body:
++            if line.startswith("#") or line.startswith("---"):
++                if desc:
++                    break
++                continue  # skip dividers/sub-headings until we hit prose
+             if line.strip():
+-                desc_lines.append(line.strip())
+-    desc = " ".join(desc_lines)[:200]
+-    meta["description"] = desc if desc else f"Skill: {dir_name}"
++                desc.append(line.strip())
++    return " ".join(desc)[:200]
+ 
+-    # Version and dates
+-    meta["version"] = "1.0.0"
+-    meta["created"] = str(date.today())
+-    meta["updated"] = str(date.today())
+ 
+-    # Dependencies
+-    meta["depends_on"] = []
+-    meta["used_by"] = []
++def build_metadata(skill_dir: Path, content: str) -> dict:
++    """name is always derived; the sidecar supplies the rest, with fallbacks."""
++    side = read_metadata_sidecar(skill_dir)
++    name = canonical_name(skill_dir.name)
++    desc = side.get("description") or scrape_description(content) or f"Skill: {name}"
++    return {
++        "name": name,
++        "description": desc[:200],
++        "version": side.get("version", "1.0.0"),
++        "created": side.get("created", str(date.today())),
++        "updated": side.get("updated", str(date.today())),
++        "depends_on": side.get("depends_on", []),
++        "used_by": side.get("used_by", []),
++    }
+ 
+-    return meta
+ 
+-
+-def read_metadata_sidecar(skill_dir: Path) -> dict | None:
+-    """Read metadata.yaml sidecar if it exists."""
+-    sidecar = skill_dir / "metadata.yaml"
+-    if not sidecar.exists():
+-        return None
+-    try:
+-        # Simple YAML parsing for flat key-value pairs
+-        meta = {}
+-        content = sidecar.read_text()
+-        for line in content.strip().split("\n"):
+-            if ":" in line and not line.startswith("#"):
+-                key, val = line.split(":", 1)
+-                key = key.strip()
+-                val = val.strip().strip('"').strip("'")
+-                if val.startswith("[") and val.endswith("]"):
+-                    # Parse simple list
+-                    val = [v.strip().strip('"').strip("'")
+-                           for v in val[1:-1].split(",") if v.strip()]
+-                meta[key] = val
+-        return meta
+-    except Exception:
+-        return None
+-
+-
+-# ── Frontmatter generation ─────────────────────────────────────────────────
++# ── Frontmatter ────────────────────────────────────────────────────────────
+ 
+ def build_frontmatter(meta: dict) -> str:
+-    """Build Claude-compatible YAML frontmatter string."""
+-    lines = ["---"]
+-    lines.append(f'name: {meta["name"]}')
+-
+-    # Multi-line description (Claude format)
++    lines = ["---", f'name: {meta["name"]}']
+     desc = meta["description"]
+     if len(desc) > 80:
+         lines.append("description: >")
+-        # Wrap at ~78 chars with 2-space indent
+-        words = desc.split()
+-        current_line = "  "
+-        for word in words:
+-            if len(current_line) + len(word) + 1 > 80:
+-                lines.append(current_line)
+-                current_line = "  " + word
++        cur = "  "
++        for word in desc.split():
++            if len(cur) + len(word) + 1 > 80:
++                lines.append(cur)
++                cur = "  " + word
+             else:
+-                current_line += (" " if current_line.strip() else "") + word
+-        if current_line.strip():
+-            lines.append(current_line)
++                cur += (" " if cur.strip() else "") + word
++        if cur.strip():
++            lines.append(cur)
+     else:
+-        lines.append(f"description: >{chr(10)}  {desc}")
+-
+-    lines.append(f'version: "{meta.get("version", "1.0.0")}"')
+-    lines.append(f'created: "{meta.get("created", str(date.today()))}"')
+-    lines.append(f'updated: "{meta.get("updated", str(date.today()))}"')
+-
+-    depends = meta.get("depends_on", [])
+-    lines.append(f'depends_on: {depends}')
+-
+-    used_by = meta.get("used_by", [])
+-    lines.append(f'used_by: {used_by}')
+-
++        lines.append(f"description: >\n  {desc}")
++    lines.append(f'version: "{meta["version"]}"')
++    lines.append(f'created: "{meta["created"]}"')
++    lines.append(f'updated: "{meta["updated"]}"')
++    lines.append(f'depends_on: {meta["depends_on"]}')
++    lines.append(f'used_by: {meta["used_by"]}')
+     lines.append(
+         'manifest_update: "After any change to this skill, update version, '
+         'updated date, and SKILLS_MANIFEST.md before closing the session."'
+@@ -140,65 +130,51 @@ def build_frontmatter(meta: dict) -> str:
+ # ── Packaging ──────────────────────────────────────────────────────────────
+ 
+ def wrap_skill(skill_dir: Path, output_dir: Path) -> Path:
+-    """Wrap a skill directory into a Claude .skill ZIP package."""
+     skill_md = skill_dir / "skill.md"
+     if not skill_md.exists():
+         print(f"ERROR: {skill_md} not found")
+         sys.exit(1)
+ 
+     content = skill_md.read_text()
++    meta = build_metadata(skill_dir, content)
++    claude_content = build_frontmatter(meta) + "\n" + content
+ 
+-    # Get metadata from sidecar or infer
+-    meta = read_metadata_sidecar(skill_dir)
+-    if meta is None:
+-        meta = infer_metadata(skill_dir, content)
+-
+-    # Build the Claude SKILL.md with frontmatter
+-    frontmatter = build_frontmatter(meta)
+-    claude_content = frontmatter + "\n" + content
+-
+-    # Determine the folder name inside the ZIP (Claude convention)
+-    zip_folder_name = meta["name"].replace(":", "")  # "course:news-hooks" → "coursenews-hooks"
+-
+-    # Create output directory
++    # ZIP folder = hyphenated directory name (clean, colon-free, filesystem-safe).
++    zip_folder_name = skill_dir.name
+     output_dir.mkdir(parents=True, exist_ok=True)
+     output_path = output_dir / f"{zip_folder_name}.skill"
+ 
+-    # Build ZIP
+     with zipfile.ZipFile(output_path, "w", zipfile.ZIP_DEFLATED) as zf:
+-        # Add SKILL.md
+         zf.writestr(f"{zip_folder_name}/SKILL.md", claude_content)
+-
+-        # Add any references/ and scripts/ directories
+-        for subdir in ("references", "scripts"):
++        for subdir in ("references", "scripts", "assets"):
+             sub_path = skill_dir / subdir
+             if sub_path.exists():
+                 for file in sub_path.rglob("*"):
+                     if file.is_file() and not file.name.startswith("."):
+                         arcname = f"{zip_folder_name}/{subdir}/{file.relative_to(sub_path)}"
+                         zf.write(file, arcname)
+-
+     return output_path
+ 
+ 
+-# ── CLI ────────────────────────────────────────────────────────────────────
+-
+ def main():
+-    parser = argparse.ArgumentParser(
+-        description="Wrap a bieri-ai skill into a Claude .skill package"
+-    )
+-    parser.add_argument("skill_dir", type=Path, help="Path to skill directory (e.g., skills/teaching-news-hooks)")
+-    parser.add_argument("--output", "-o", type=Path, default=Path("dist/claude"),
+-                        help="Output directory for .skill file (default: dist/claude)")
++    parser = argparse.ArgumentParser(description="Wrap a bieri-ai skill into a Claude .skill package")
++    parser.add_argument("skill_dir", type=Path, nargs="?", help="Path to skill directory (e.g., skills/teaching-news-hooks)")
++    parser.add_argument("--output", "-o", type=Path, default=Path("dist/claude"))
++    parser.add_argument("--all", action="store_true", help="Wrap every skill under skills/")
++    parser.add_argument("--dry-run", action="store_true", help="Print the emitted name without writing a ZIP")
+     args = parser.parse_args()
+ 
+-    if not args.skill_dir.is_dir():
+-        print(f"ERROR: {args.skill_dir} is not a directory")
+-        sys.exit(1)
+-
+-    output_path = wrap_skill(args.skill_dir, args.output)
+-    print(f"✓  Packaged: {output_path}")
+-    print(f"   Install: Claude Desktop → Cowork → Customize → Skills → + → upload")
++    targets = sorted(p for p in Path("skills").iterdir() if p.is_dir()) if args.all else [args.skill_dir]
++    for target in targets:
++        if not target.is_dir():
++            print(f"ERROR: {target} is not a directory")
++            sys.exit(1)
++        if args.dry_run:
++            content = (target / "skill.md").read_text() if (target / "skill.md").exists() else ""
++            print(f"{target.name:34s} -> name: {build_metadata(target, content)['name']}")
++        else:
++            out = wrap_skill(target, args.output)
++            print(f"✓  Packaged: {out}")
+ 
+ 
+ if __name__ == "__main__":
+diff --git a/skills/session-handover/skill.md b/skills/session-handover/skill.md
+index 25bb3c3..7fe4d22 100644
+--- a/skills/session-handover/skill.md
++++ b/skills/session-handover/skill.md
+@@ -210,16 +210,16 @@ This skill operates within a four-domain, three-layer architecture. Read
+ | Domain | Session notes (fast) | Registry (slow) | Skills |
+ |--------|---------------------|----------------|--------|
+ | Research | `RESEARCH_SESSION_NOTES.md` | progress log | — |
+-| Teaching | `TEACHING_SESSION_NOTES.md` | `SKILLS_MANIFEST.md` | `course:*` (7 active) |
++| Teaching | `TEACHING_SESSION_NOTES.md` | `SKILLS_MANIFEST.md` | `teaching:*` (7 active) |
+ | Admin | `{PROJECT}_SESSION_NOTES.md` | project progress + decisions | (project-specific) |
+ | Home | `HOME_SESSION_NOTES.md` | registry | — |
+ 
+ **Three layers per domain:**
+ - **Fast** — `{PREFIX}_SESSION_NOTES.md`: in-flight state, updated every session
+ - **Slow** — registry file(s): stable, authoritative, rarely changed
+-- **Skills** — domain-specific Claude skills (`course:*` namespace for Teaching)
++- **Skills** — domain-specific Claude skills (`teaching:*` namespace for Teaching)
+ 
+-**Meta layer:** `course:skill-builder` + `audit_skill.py` governs the skills library.
++**Meta layer:** `teaching:skill-builder` + `audit_skill.py` governs the skills library.
+ 
+ **Starting a new domain:** create `{PREFIX}_SESSION_NOTES.md` with the project
+ configuration block (see "Project configuration block" section above) and add
+@@ -237,5 +237,5 @@ stored at `OneDrive/Teaching/Architecture/`.
+ - **1.1.0** (2026-06-09): Added Architecture reference section with
+   four-domain table, layer descriptions, and diagram pointer.
+ - **1.0.0** (2026-06-09): Created by consolidating `agw-handover`
+-  (AGW website project) and `course:handover` (teaching project) into a
++  (AGW website project) and `teaching:handover` (teaching project) into a
+   single generic skill. Both predecessors retired.
+diff --git a/skills/teaching-assess-from-kb/skill.md b/skills/teaching-assess-from-kb/skill.md
+index 85aa349..c51e5cd 100644
+--- a/skills/teaching-assess-from-kb/skill.md
++++ b/skills/teaching-assess-from-kb/skill.md
+@@ -1,5 +1,5 @@
+ 
+-# course:assess-from-kb
++# teaching:assess-from-kb
+ 
+ ## When to invoke
+ 
+@@ -74,7 +74,7 @@ From the KB results, extract:
+ 4. Note acceptable answer range if numerical
+ 
+ **For discussion prompts:**
+-1. Reference a current-events hook if available (see `course:news-hooks`)
++1. Reference a current-events hook if available (see `teaching:news-hooks`)
+ 2. Connect the news to a course concept
+ 3. Require the student to apply the framework, not just recall it
+ 
+diff --git a/skills/teaching-build-kb/skill.md b/skills/teaching-build-kb/skill.md
+index d78da1e..7d2a3d3 100644
+--- a/skills/teaching-build-kb/skill.md
++++ b/skills/teaching-build-kb/skill.md
+@@ -1,5 +1,5 @@
+ 
+-# course:build-kb
++# teaching:build-kb
+ 
+ ## When to invoke
+ 
+diff --git a/skills/teaching-compose-slides/references/slide-library.md b/skills/teaching-compose-slides/references/slide-library.md
+index e751a02..27e0a52 100644
+--- a/skills/teaching-compose-slides/references/slide-library.md
++++ b/skills/teaching-compose-slides/references/slide-library.md
+@@ -191,12 +191,12 @@ function workedSlide(p, tag, title, formula, given, answer, notes, n, total) {
+ }
+ ```
+ **Dimensional integrity rule:** always verify units in both the formula and the
+-answer. See `course:video-scripts` for narration conventions on worked examples.
++answer. See `teaching:video-scripts` for narration conventions on worked examples.
+ 
+ ---
+ 
+ ### `newsSlide(p, tag, title, source, url, question, notes, n, total)`
+-Image-forward "In the news" slide. See `course:news-hooks` for content guidance.
++Image-forward "In the news" slide. See `teaching:news-hooks` for content guidance.
+ 
+ - `tag`: includes the variant — e.g., `"[L2.3] · In the (micro-)news …"`
+ - `title`: article headline (≤10 words)
+diff --git a/skills/teaching-compose-slides/skill.md b/skills/teaching-compose-slides/skill.md
+index 7b92fb1..6aac22d 100644
+--- a/skills/teaching-compose-slides/skill.md
++++ b/skills/teaching-compose-slides/skill.md
+@@ -1,5 +1,5 @@
+ 
+-# course:compose-slides
++# teaching:compose-slides
+ 
+ ## When to invoke
+ 
+@@ -39,7 +39,7 @@ From context or by asking:
+ - **Content source** — KB search results, uploaded slides, user-provided outline,
+   or KB + new material combined
+ - **Video deck or in-person deck** — affects slide density and whether narration
+-  notes are needed (see `course:video-scripts` for full narration guidance)
++  notes are needed (see `teaching:video-scripts` for full narration guidance)
+ - **Slide count target** (default: 12–14 for a 10-min video; 20–30 for a full lecture)
+ 
+ ### Step 2 — Search project knowledge (if available)
+@@ -110,9 +110,9 @@ This is the single most important style rule:
+ 
+ ---
+ 
+-## News hook slides — see `course:news-hooks`
++## News hook slides — see `teaching:news-hooks`
+ 
+-For any deck that needs "In the news" slides, invoke `course:news-hooks` to
++For any deck that needs "In the news" slides, invoke `teaching:news-hooks` to
+ find stories and format them. The news slide format is defined in
+ `references/slide-library.md` under `newsSlide()`.
+ 
+diff --git a/skills/teaching-news-hooks/skill.md b/skills/teaching-news-hooks/skill.md
+index e90bdf4..213b36a 100644
+--- a/skills/teaching-news-hooks/skill.md
++++ b/skills/teaching-news-hooks/skill.md
+@@ -1,5 +1,5 @@
+ 
+-# course:news-hooks
++# teaching:news-hooks
+ 
+ ## When to invoke
+ 
+diff --git a/skills/teaching-skill-builder/scripts/audit_skill.py b/skills/teaching-skill-builder/scripts/audit_skill.py
+index 5f060f7..0cce479 100644
+--- a/skills/teaching-skill-builder/scripts/audit_skill.py
++++ b/skills/teaching-skill-builder/scripts/audit_skill.py
+@@ -1,6 +1,6 @@
+ #!/usr/bin/env python3
+ """
+-audit_skill.py — Compliance checker for course: namespace skills
++audit_skill.py — Compliance checker for teaching: namespace skills
+ Usage: python audit_skill.py <skill-folder>
+        python audit_skill.py <skill.skill>   (ZIP file)
+ 
+@@ -54,7 +54,7 @@ def audit_from_text(content: str, skill_name: str = "?") -> list[str]:
+     if dep_m:
+         dep_val = dep_m.group(1).strip().strip('"\'')
+         # Warn if it looks like skill names rather than packages
+-        if dep_val.startswith("course:"):
++        if dep_val.startswith("teaching:"):
+             issues.append(
+                 "WARN: 'dependencies' should list software packages (e.g. python-pptx>=0.6), "
+                 "not skill names — use 'depends_on' for skill-to-skill references"
+diff --git a/skills/teaching-skill-builder/skill.md b/skills/teaching-skill-builder/skill.md
+index 2ba6cef..64a6733 100644
+--- a/skills/teaching-skill-builder/skill.md
++++ b/skills/teaching-skill-builder/skill.md
+@@ -1,7 +1,7 @@
+ 
+-# course:skill-builder
++# teaching:skill-builder
+ 
+-Creates, audits, and maintains teaching skills in the `course:` namespace.
++Creates, audits, and maintains teaching skills in the `teaching:` namespace.
+ 
+ ---
+ 
+@@ -39,7 +39,7 @@ Files must NOT be directly in the ZIP root — the skill folder must be the root
+ 
+ ---
+ 
+-## Our conventions (course: namespace)
++## Our conventions (teaching: namespace)
+ 
+ Additional frontmatter fields we use beyond the official spec:
+ 
+@@ -47,7 +47,7 @@ Additional frontmatter fields we use beyond the official spec:
+ version: "1.0.1"          # semantic: major.minor.patch
+ created: "YYYY-MM-DD"      # immutable
+ updated: "YYYY-MM-DD"      # bump on every change
+-depends_on: []             # other course: skills this one calls or requires
++depends_on: []             # other teaching: skills this one calls or requires
+ used_by: []                # reverse index — which skills call this one
+ manifest_update: "..."     # enforcement reminder (same text on every skill)
+ ```
+@@ -76,18 +76,18 @@ Extract from the conversation:
+ 
+ ```
+ ---
+-name: course:skill-name
++name: teaching:skill-name
+ description: >
+   [≤200 chars. Core trigger statement. "Use for X, Y, Z."]
+ version: "1.1.1"
+ created: "YYYY-MM-DD"
+ updated: "YYYY-MM-DD"
+-depends_on: [list of course: skills required]
++depends_on: [list of teaching: skills required]
+ used_by: []
+ manifest_update: "After any change to this skill, update version, updated date, and SKILLS_MANIFEST.md before closing the session."
+ ---
+ 
+-# course:skill-name
++# teaching:skill-name
+ 
+ [One-line summary]
+ 
+@@ -244,16 +244,16 @@ Skills live as source in the pillar repo, packaged on demand:
+   shared-skills/session-handover/
+ ```
+ 
+-## Known skills in the course: library
++## Known skills in the teaching: library
+ 
+ | Skill | Purpose |
+ |-------|---------|
+-| `course:news-hooks` | "In the news" slide search and formatting |
+-| `course:build-kb` | PPTX → KB extraction via build_kb.py |
+-| `course:video-scripts` | Narration script generation (130 wpm) |
+-| `course:compose-slides` | Lecture deck composition in house style |
+-| `course:assess-from-kb` | Assessment generation from KB content |
+-| `course:skill-builder` | This skill — library creation and maintenance |
++| `teaching:news-hooks` | "In the news" slide search and formatting |
++| `teaching:build-kb` | PPTX → KB extraction via build_kb.py |
++| `teaching:video-scripts` | Narration script generation (130 wpm) |
++| `teaching:compose-slides` | Lecture deck composition in house style |
++| `teaching:assess-from-kb` | Assessment generation from KB content |
++| `teaching:skill-builder` | This skill — library creation and maintenance |
+ 
+ Manifest: `SKILLS_MANIFEST.md` in Project knowledge.
+ Storage: `OneDrive - Virginia Tech/Teaching/Skills/`
+diff --git a/skills/teaching-video-scripts/skill.md b/skills/teaching-video-scripts/skill.md
+index db97e07..64d215e 100644
+--- a/skills/teaching-video-scripts/skill.md
++++ b/skills/teaching-video-scripts/skill.md
+@@ -1,5 +1,5 @@
+ 
+-# course:video-scripts
++# teaching:video-scripts
+ 
+ ## When to invoke
+ 
+diff --git a/skills/webdev-contact-protocol-links/skill.md b/skills/webdev-contact-protocol-links/skill.md
+index 5f90da5..eb925f5 100644
+--- a/skills/webdev-contact-protocol-links/skill.md
++++ b/skills/webdev-contact-protocol-links/skill.md
+@@ -1,4 +1,4 @@
+-# Contact Protocol Links
++# webdev:contact-protocol-links
+ 
+ This skill defines patterns for implementing "zero-infrastructure" contact channels on static websites using native URI protocols.
+ 
+diff --git a/skills/webdev-cross-browser-smoke-test/skill.md b/skills/webdev-cross-browser-smoke-test/skill.md
+index 156aeb2..3af5d97 100644
+--- a/skills/webdev-cross-browser-smoke-test/skill.md
++++ b/skills/webdev-cross-browser-smoke-test/skill.md
+@@ -1,4 +1,4 @@
+-# Systematic Smoke Testing
++# webdev:cross-browser-smoke-test
+ 
+ This skill defines a rigorous methodology for testing static sites and interactive web applications before merging branches.
+ 
+diff --git a/skills/webdev-d3-analytics-modules/skill.md b/skills/webdev-d3-analytics-modules/skill.md
+index a72ae9e..1642ffd 100644
+--- a/skills/webdev-d3-analytics-modules/skill.md
++++ b/skills/webdev-d3-analytics-modules/skill.md
+@@ -1,4 +1,4 @@
+-# D3 Analytics Modules
++# webdev:d3-analytics-modules
+ 
+ This skill defines the architecture for building interactive, tab-driven analytics dashboards using D3.js (or React/D3 hybrids) without a backend.
+ 
+diff --git a/skills/webdev-json-data-enrichment/skill.md b/skills/webdev-json-data-enrichment/skill.md
+index 158f3d0..13ae7c5 100644
+--- a/skills/webdev-json-data-enrichment/skill.md
++++ b/skills/webdev-json-data-enrichment/skill.md
+@@ -1,4 +1,4 @@
+-# JSON Data Enrichment
++# webdev:json-data-enrichment
+ 
+ This skill defines patterns for safely transforming, validating, and enriching static JSON datasets used by frontend applications.
+ 
+diff --git a/skills/webdev-latex-pdf-guide/skill.md b/skills/webdev-latex-pdf-guide/skill.md
+index 54e713b..116f5f8 100644
+--- a/skills/webdev-latex-pdf-guide/skill.md
++++ b/skills/webdev-latex-pdf-guide/skill.md
+@@ -1,4 +1,4 @@
+-# LaTeX PDF Guide & Web Delivery
++# webdev:latex-pdf-guide
+ 
+ This skill defines the workflow for maintaining formal documentation (User Guides, Manuals) written in LaTeX, compiling them to PDF, and exposing them on a web frontend with proper citation instructions.
+ 
+diff --git a/skills/web-release-workflow/skill.md b/skills/webdev-release-workflow/skill.md
+similarity index 99%
+rename from skills/web-release-workflow/skill.md
+rename to skills/webdev-release-workflow/skill.md
+index 3d89efc..5945d1c 100644
+--- a/skills/web-release-workflow/skill.md
++++ b/skills/webdev-release-workflow/skill.md
+@@ -1,4 +1,4 @@
+-# Web Release Workflow
++# webdev:release-workflow
+ 
+ This skill is an **orchestrator**. It defines the sequence of steps for releasing a web project but delegates implementation details to specialized domain skills. Do not duplicate content from those skills here — read and invoke them at the appropriate step.
+ 
+diff --git a/skills/webdev-static-site-i18n/skill.md b/skills/webdev-static-site-i18n/skill.md
+index f1e527a..13932a7 100644
+--- a/skills/webdev-static-site-i18n/skill.md
++++ b/skills/webdev-static-site-i18n/skill.md
+@@ -1,4 +1,4 @@
+-# Static Site i18n & Management
++# webdev:static-site-i18n
+ 
+ This skill defines the core architecture for managing a multi-page static website with client-side internationalization (i18n) and shared UI patterns. It is designed to keep the site entirely static (no backend) while maintaining consistency across pages.
+ 
+diff --git a/templates/metadata.yaml b/templates/metadata.yaml
+new file mode 100644
+index 0000000..2b2eb8a
+--- /dev/null
++++ b/templates/metadata.yaml
+@@ -0,0 +1,8 @@
++# Authored metadata for a bieri-ai skill. The adapter reads this; `name` is
++# always derived from the directory, so it is intentionally NOT set here.
++description: "{≤200 chars. What it does + when to use. 'Use for X, Y, Z.'}"
++version: "1.0.0"
++created: "{YYYY-MM-DD}"
++updated: "{YYYY-MM-DD}"
++depends_on: []
++used_by: []
+diff --git a/templates/skill_template.md b/templates/skill_template.md
+index 1df7d19..9b4b69c 100644
+--- a/templates/skill_template.md
++++ b/templates/skill_template.md
+@@ -1,14 +1,4 @@
+----
+-name: {namespace}:{skill-name}
+-description: >
+-  {≤200 chars. What it does. "Use for X, Y, Z."}
+-version: "1.0.0"
+-created: "{YYYY-MM-DD}"
+-updated: "{YYYY-MM-DD}"
+-depends_on: []
+-used_by: []
+-manifest_update: "After any change to this skill, update version, updated date, and the relevant SKILLS_MANIFEST.md before closing the session."
+----
++<!-- No YAML frontmatter — adapters add it (CONTRIBUTING §3). Authored metadata (description, version, depends_on, used_by) lives in metadata.yaml beside this skill. -->
+ 
+ # {namespace}:{skill-name}
+ 
+@@ -18,7 +8,7 @@ manifest_update: "After any change to this skill, update version, updated date,
+ 
+ ## When to invoke
+ 
+-Trigger on: {concrete trigger phrases and contexts — overflow from the 200-char description}.
++Trigger on: {concrete trigger phrases and contexts — the overflow from the metadata.yaml description}.
+ 
+ ---
+ 
+@@ -36,7 +26,7 @@ Trigger on: {concrete trigger phrases and contexts — overflow from the 200-cha
+ 
+ ## Output format
+ 
+-{Describe what Claude should produce: file, code block, table, etc.}
++{Describe what the skill should produce: file, code block, table, etc.}
+ 
+ ---
+ 

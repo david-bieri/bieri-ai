@@ -1,4 +1,4 @@
-# JSON Data Enrichment
+# webdev:json-data-enrichment
 
 This skill defines patterns for safely transforming, validating, and enriching static JSON datasets used by frontend applications.
 

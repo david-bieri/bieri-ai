@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-audit_skill.py — Compliance checker for course: namespace skills
+audit_skill.py — Compliance checker for teaching: namespace skills
 Usage: python audit_skill.py <skill-folder>
        python audit_skill.py <skill.skill>   (ZIP file)
 
@@ -54,7 +54,7 @@ def audit_from_text(content: str, skill_name: str = "?") -> list[str]:
     if dep_m:
         dep_val = dep_m.group(1).strip().strip('"\'')
         # Warn if it looks like skill names rather than packages
-        if dep_val.startswith("course:"):
+        if dep_val.startswith("teaching:"):
             issues.append(
                 "WARN: 'dependencies' should list software packages (e.g. python-pptx>=0.6), "
                 "not skill names — use 'depends_on' for skill-to-skill references"

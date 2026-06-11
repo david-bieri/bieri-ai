@@ -1,5 +1,5 @@
 
-# course:assess-from-kb
+# teaching:assess-from-kb
 
 ## When to invoke
 
@@ -74,7 +74,7 @@ From the KB results, extract:
 4. Note acceptable answer range if numerical
 
 **For discussion prompts:**
-1. Reference a current-events hook if available (see `course:news-hooks`)
+1. Reference a current-events hook if available (see `teaching:news-hooks`)
 2. Connect the news to a course concept
 3. Require the student to apply the framework, not just recall it
 
