@@ -2,6 +2,12 @@
 
 This skill defines patterns for implementing "zero-infrastructure" contact channels on static websites using native URI protocols.
 
+## When to invoke
+
+Trigger on: "add a contact link", "make the email/phone clickable", "add a WhatsApp or SMS link", "set up mailto/tel/sms links", "pre-fill a contact message", or any request to add contact channels to a static site without a backend.
+
+---
+
 ## Protocol Link Formats
 
 All protocols support pre-filling data. Message bodies MUST be URL-encoded (`%20` for space, `%2C` for comma).

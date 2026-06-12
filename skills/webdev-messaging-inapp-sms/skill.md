@@ -1,11 +1,4 @@
----
-name: webdev-messaging-inapp-sms
-description: "Add a unified messaging feed to a Node.js/Express web app. In-app posts and inbound SMS via Twilio, with a nav badge that tracks unread messages via localStorage. Use when building a message board, team/family inbox, or any app that needs to receive SMS alongside in-app posts. Covers database schema, backend routes, TwiML response pattern, localStorage unread tracking, and Twilio setup."
-version: "1.1"
----
-
 # webdev:messaging-inapp-sms
-_v1.1 — platform-agnostic rewrite_
 
 Add a unified messaging feed to any web app: in-app posts and inbound SMS via Twilio, with a nav badge that tracks unread messages using a client-side timestamp.
 

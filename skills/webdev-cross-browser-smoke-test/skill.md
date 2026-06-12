@@ -2,6 +2,12 @@
 
 This skill defines a rigorous methodology for testing static sites and interactive web applications before merging branches.
 
+## When to invoke
+
+Trigger on: "smoke test the site", "test before merging", "QA this branch", "check it works across browsers", "verify the build before release", or any pre-merge verification of a static site or web app. Invoked by `webdev:release-workflow` at Step 1.
+
+---
+
 ## The Testing Methodology
 
 When asked to perform a "smoke test," systematically verify the application across several dimensions using browser tools to navigate, click, and inspect the DOM/Console.

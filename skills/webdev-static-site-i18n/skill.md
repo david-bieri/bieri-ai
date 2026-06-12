@@ -2,6 +2,12 @@
 
 This skill defines the core architecture for managing a multi-page static website with client-side internationalization (i18n) and shared UI patterns. It is designed to keep the site entirely static (no backend) while maintaining consistency across pages.
 
+## When to invoke
+
+Trigger on: "add a language", "translate the site", "update the i18n strings", "manage the multi-page static site", "propagate a footer or header change", "deploy concurrency", or any multi-page static site or client-side i18n work. Invoked by `webdev:release-workflow` at Steps 2, 4, and 5.
+
+---
+
 ## Core Principles
 
 1. **Zero Backend**: The site must run entirely on static file hosting (e.g., GitHub Pages).

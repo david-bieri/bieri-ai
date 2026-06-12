@@ -20,6 +20,7 @@
 | `webdev-deploy-render` | 1.1.0 | Active | 2026-06-11 |
 | `webdev-platform-migration` | 1.0.0 | Active | 2026-06-10 |
 | `webdev-node-build-pitfalls` | 1.0.0 | Active | 2026-06-11 |
+| `webdev-messaging-inapp-sms` | 1.1.0 | Active | 2026-06-11 |
 
 ---
 
@@ -60,3 +61,4 @@
 | 2026-06-11 | Updated | `webdev-deploy-render` v1.1.0 — nodeVersion required, VITE_ env var trap, Exited-status-1 diagnosis table |
 | 2026-06-11 | Added | `webdev-node-build-pitfalls` v1.0.0 — 7 CI build pitfalls with symptom/cause/fix + pre-deploy checklist |
 | 2026-06-11 | Normalized | Contract normalization — colon identities + sidecars; `web-release-workflow` → `webdev:release-workflow`; `webdev:supabase-app` → v1.1.0; six skill reconciliations |
+| 2026-06-11 | Normalized | Reconstructed orphan sources `webdev:messaging-inapp-sms` (v1.1.0) + `webdev:node-build-pitfalls` (v1.0.0) as compliant skill.md + metadata.yaml (committed SKILL.md removed); added `## When to invoke` to 7 freeform webdev skills (→ v1.0.1) |

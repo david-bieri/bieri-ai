@@ -2,6 +2,12 @@
 
 This skill defines the workflow for maintaining formal documentation (User Guides, Manuals) written in LaTeX, compiling them to PDF, and exposing them on a web frontend with proper citation instructions.
 
+## When to invoke
+
+Trigger on: "update the user guide", "compile the LaTeX to PDF", "publish the manual on the site", "sync the docs to the new features", "edit the .tex source", or any formal LaTeX documentation or PDF web-delivery work. Invoked by `webdev:release-workflow` at Step 2.
+
+---
+
 ## 1. LaTeX Compilation Workflow
 
 Documentation should be maintained in a `.tex` source file. When features change, the `.tex` file MUST be updated and recompiled.

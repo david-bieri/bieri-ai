@@ -2,6 +2,12 @@
 
 This skill defines the architecture for building interactive, tab-driven analytics dashboards using D3.js (or React/D3 hybrids) without a backend.
 
+## When to invoke
+
+Trigger on: "build an analytics dashboard", "add a D3 chart or module", "tab-driven visualizations", "interactive charts without a backend", "mount/unmount chart modules", or any client-side analytics or dataviz work with D3 or React/D3.
+
+---
+
 ## 1. Tab-Mounted Sub-Modules
 
 Instead of loading all visualizations at once, use a tab system that mounts and unmounts modules dynamically.

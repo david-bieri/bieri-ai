@@ -2,6 +2,12 @@
 
 This skill defines patterns for safely transforming, validating, and enriching static JSON datasets used by frontend applications.
 
+## When to invoke
+
+Trigger on: "transform the JSON data", "add a field to the dataset", "validate the JSON", "enrich the data file", "migrate the data schema", or any safe transformation of static JSON consumed by a frontend.
+
+---
+
 ## Core Principles
 
 1. **Pre-compute for the frontend**: If a value is needed by the UI (like a sorted name), compute it once in the JSON rather than on the fly in the browser.

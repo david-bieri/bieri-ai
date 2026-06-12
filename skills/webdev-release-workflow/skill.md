@@ -2,6 +2,12 @@
 
 This skill is an **orchestrator**. It defines the sequence of steps for releasing a web project but delegates implementation details to specialized domain skills. Do not duplicate content from those skills here — read and invoke them at the appropriate step.
 
+## When to invoke
+
+Trigger on: "release this", "merge dev into main", "ship to production", "do the release", "deploy the branch", or any request to take a web project from a development branch to production.
+
+---
+
 ## The Release Sequence
 
 When asked to merge a development branch into production, follow these steps in order:

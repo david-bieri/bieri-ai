@@ -1,0 +1,6 @@
+description: "Diagnose Node.js builds that pass locally but fail on a clean CI host (Render, Railway, Fly.io, GitHub Actions): status-1, lock-file errors, tsx-not-found, Tailwind/jiti crashes, Node-version floors."
+version: "1.0.0"
+created: "2026-06-11"
+updated: "2026-06-11"
+depends_on: []
+used_by: []

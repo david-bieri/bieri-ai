@@ -1,7 +1,7 @@
 # Authored metadata for webdev-latex-pdf-guide. The adapter derives `name` from the directory;
 # it is intentionally not set here.
 description: "Workflow for maintaining LaTeX documentation, compiling to PDF, and exposing it on a website. Use when editing or publishing formal docs, or syncing docs to the live feature set."
-version: "1.0.0"
+version: "1.0.1"
 created: "2026-06-11"
 updated: "2026-06-11"
 depends_on: []

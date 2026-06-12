@@ -1,7 +1,7 @@
 # Authored metadata for webdev-json-data-enrichment. The adapter derives `name` from the directory;
 # it is intentionally not set here.
 description: "Patterns for safely transforming, validating, and enriching static JSON datasets used by frontends. Use when migrating a data schema or enriching JSON consumed by a static site."
-version: "1.0.0"
+version: "1.0.1"
 created: "2026-06-11"
 updated: "2026-06-11"
 depends_on: []

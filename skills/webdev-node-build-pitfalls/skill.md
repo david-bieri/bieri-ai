@@ -1,21 +1,14 @@
----
-name: webdev-node-build-pitfalls
-description: "Diagnose and fix Node.js build failures on CI/CD platforms (Render, Railway, Fly.io, GitHub Actions). Use when a build passes locally but fails on a clean host with 'Exited with status 1', lock file errors, missing modules, tsx not found, or Tailwind CSS transform crashes. Covers jiti v1/v2 incompatibility, devDependency build-time leaks, npm overrides symlink corruption, Node version floors, and VITE_ env var naming at runtime."
-metadata:
-  version: '1.0'
-  domain: webdev
-  author: bieri-ai
+# webdev:node-build-pitfalls
+
+A diagnostic reference for Node.js builds that pass locally but fail on a clean CI/CD host — seven known failure modes, each with symptom, root cause, and fix.
+
 ---
 
-# Node Build Pitfalls
+## When to invoke
 
-## When to Use This Skill
+Trigger on: "the build passes locally but fails on Render", "Exited with status 1", "tsx: not found", "Cannot find module @tailwindcss/...", "lock file out of sync", "vite:css transform crashed", "supabaseUrl is required at startup", or any CI/CD build failure on Render, Railway, Fly.io, or GitHub Actions.
 
-Load this skill when:
-- A build that passes locally fails on a clean CI/CD host
-- You see `Exited with status 1` with little context
-- You need to diagnose which of several known failure modes is happening
-- You are setting up a Vite + Express + Tailwind project for hosted deployment
+---
 
 ## The Golden Rule
 
