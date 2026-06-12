@@ -1,0 +1,8 @@
+# Authored metadata for webdev-static-site-i18n. The adapter derives `name` from the directory;
+# it is intentionally not set here.
+description: "Architecture for a multi-page static site with client-side i18n and shared UI: string tables, footer propagation, deploy concurrency. Use when managing or translating a multi-page static site."
+version: "1.0.0"
+created: "2026-06-11"
+updated: "2026-06-11"
+depends_on: []
+used_by: ["webdev:release-workflow"]

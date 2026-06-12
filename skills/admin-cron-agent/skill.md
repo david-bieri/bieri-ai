@@ -73,7 +73,7 @@ cat /tmp/results.json
 
 ## Scheduling
 
-Use `pplx-tool schedule_cron` with a standard cron expression in **UTC**. Always confirm with user before creating (each run costs credits).
+Use `pplx-tool schedule_cron` with a standard cron expression in **UTC** (convert from the user's local timezone). For one-time scheduled runs, pass `run_at` with an ISO timestamp instead of `cron`. Always confirm with the user before creating (each run costs credits).
 
 ```bash
 pplx-tool schedule_cron <<'JSON'
@@ -100,9 +100,33 @@ Cron instructions must be fully self-contained — they receive no conversation 
 
 ---
 
-## Migration note
+## Hosted App Pattern (Render / Railway / Fly.io)
 
-On hosted platforms (Render, Railway, Fly.io), cron jobs call the **public API URL** — no local server start needed. The single-invocation pattern is specific to agent sandboxes.
+When the app is deployed to a public host, the cron **does not start a local server** — it POSTs directly to the public URL. This is simpler and more reliable, and the single-invocation build+start+kill pattern is only needed in the agent sandbox where the app runs locally.
+
+```
+Phase 1 (agent): Call external tool → write /tmp/data.json
+Phase 2 (bash):  POST each item to https://your-app.onrender.com/api/... → write /tmp/results.json
+Phase 3 (agent): Read /tmp/results.json → notify if needed
+```
+
+Example Phase 2 for a hosted app:
+
+```python
+import json, urllib.request
+
+API = "https://your-app.onrender.com/api/inbox/scan"  # public URL
+emails = json.load(open("/tmp/emails_to_scan.json"))
+
+for email in emails:
+    payload = json.dumps({...}).encode()
+    req = urllib.request.Request(API, data=payload,
+                                 headers={"Content-Type": "application/json"})
+    resp = json.loads(urllib.request.urlopen(req, timeout=30).read())
+    # handle resp...
+```
+
+> **Free-tier cold start:** Render's free tier sleeps after 15 min. The first POST of the day may take 30–60s to wake the instance. Use a 60s timeout on the first request, or keep the instance warm (e.g. UptimeRobot).
 
 ---
 

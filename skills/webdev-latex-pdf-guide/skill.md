@@ -1,4 +1,4 @@
-# LaTeX PDF Guide & Web Delivery
+# webdev:latex-pdf-guide
 
 This skill defines the workflow for maintaining formal documentation (User Guides, Manuals) written in LaTeX, compiling them to PDF, and exposing them on a web frontend with proper citation instructions.
 

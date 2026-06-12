@@ -1,0 +1,8 @@
+# Authored metadata for teaching-video-scripts. The adapter derives `name` from the directory;
+# it is intentionally not set here.
+description: "Write narration scripts for async lecture videos at 130 wpm / 10-12 min. Use for speaking notes, Loom scripts, teleprompter text, or timing a deck for recording."
+version: "1.0.0"
+created: "2026-06-11"
+updated: "2026-06-11"
+depends_on: []
+used_by: ["teaching:compose-slides"]

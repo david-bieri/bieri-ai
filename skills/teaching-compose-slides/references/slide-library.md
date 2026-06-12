@@ -191,12 +191,12 @@ function workedSlide(p, tag, title, formula, given, answer, notes, n, total) {
 }
 ```
 **Dimensional integrity rule:** always verify units in both the formula and the
-answer. See `course:video-scripts` for narration conventions on worked examples.
+answer. See `teaching:video-scripts` for narration conventions on worked examples.
 
 ---
 
 ### `newsSlide(p, tag, title, source, url, question, notes, n, total)`
-Image-forward "In the news" slide. See `course:news-hooks` for content guidance.
+Image-forward "In the news" slide. See `teaching:news-hooks` for content guidance.
 
 - `tag`: includes the variant — e.g., `"[L2.3] · In the (micro-)news …"`
 - `title`: article headline (≤10 words)

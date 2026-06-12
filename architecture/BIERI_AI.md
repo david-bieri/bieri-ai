@@ -29,8 +29,11 @@ Skills are executed by different platforms, which require different metadata wra
 
 ## Skill Namespaces
 
-- `(universal)` — e.g., `session-handover`, `web-release-workflow`
-- `course:*` — Teaching domain
-- `webdev:*` — WebDev domain
+Identity is colon-namespaced (`teaching:news-hooks`); the directory is the hyphenated equivalent (`teaching-news-hooks`). The adapter derives the deployed `name` from the directory prefix, so identity stays consistent across machines and platforms.
+
+- `(universal)` — bare names, no prefix (e.g., `session-handover`)
+- `teaching:*` — Teaching domain
+- `webdev:*` — WebDev domain (includes `webdev:release-workflow`, the merge/deploy orchestrator)
 - `research:*` — Research domain
-- `admin:*` — Project-specific tools
+- `admin:*` — Admin / household tools
+- `home:*` — Home domain (reserved; household skills currently live in `admin:*`)

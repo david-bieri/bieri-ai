@@ -1,0 +1,8 @@
+# Authored metadata for webdev-contact-protocol-links. The adapter derives `name` from the directory;
+# it is intentionally not set here.
+description: "Implement zero-infrastructure contact channels on static sites via native URI protocols (mailto, tel, sms, wa.me). Use when adding or fixing contact links without a backend."
+version: "1.0.0"
+created: "2026-06-11"
+updated: "2026-06-11"
+depends_on: []
+used_by: ["webdev:release-workflow"]

@@ -23,3 +23,4 @@
 | Date | Version | Changes |
 |------|---------|---------|
 | 2026-06-10 | 2.0.0 | Migrated to unified bieri-ai monorepo architecture |
+| 2026-06-11 | 2.1.0 | Contract normalization — `course:`→`teaching:`, no-frontmatter + `metadata.yaml` sidecars, skill-builder aligned to the bieri-ai contract |

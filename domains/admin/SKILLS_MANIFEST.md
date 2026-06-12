@@ -11,7 +11,7 @@
 | `admin-cron-agent` | 1.1.0 | Active | 2026-06-11 |
 | `admin-gmail-scanner` | 1.1.0 | Active | 2026-06-11 |
 | `admin-tag-parser` | 1.0.0 | Active | 2026-06-10 |
-| `admin-family-hub` | 1.0.0 | Active | 2026-06-10 |
+| `admin-family-hub` | 1.2.0 | Active | 2026-06-11 |
 
 ---
 
@@ -67,3 +67,4 @@ admin-family-hub
 | 2026-06-10 | Added | `admin-family-hub` v1.0.0 — full household management app |
 | 2026-06-11 | Updated | `admin-cron-agent` v1.1.0 — hosted app pattern (POST to public URL) documented as first-class; Render cold-start timeout note |
 | 2026-06-11 | Updated | `admin-gmail-scanner` v1.1.0 — Step 4 split into hosted vs sandbox branches; 60s timeout for Render free tier |
+| 2026-06-11 | Normalized | Contract normalization — colon identities, `metadata.yaml` sidecars, six reconciliations folded into `skill.md`; `admin:family-hub` → v1.2.0 |

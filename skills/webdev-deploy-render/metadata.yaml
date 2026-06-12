@@ -1,0 +1,8 @@
+# Authored metadata for webdev-deploy-render. The adapter derives `name` from the directory;
+# it is intentionally not set here.
+description: "Deploy Node.js apps and cron jobs to Render.com: GitHub auto-deploy, env vars, health checks, Node-version pinning, free-tier tuning. Use to host a Vite/Express app or diagnose a Render build."
+version: "1.1.0"
+created: "2026-06-11"
+updated: "2026-06-11"
+depends_on: []
+used_by: ["admin:family-hub", "webdev:platform-migration"]

@@ -1,0 +1,8 @@
+# Authored metadata for session-handover. The adapter derives `name` from the directory;
+# it is intentionally not set here.
+description: "Universal protocol for clean continuity across Claude sessions. Use at session end to write SESSION_NOTES, or at session start to restore context before doing anything else."
+version: "1.0.0"
+created: "2026-06-11"
+updated: "2026-06-11"
+depends_on: []
+used_by: []

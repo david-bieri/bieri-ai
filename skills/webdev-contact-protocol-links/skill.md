@@ -1,4 +1,4 @@
-# Contact Protocol Links
+# webdev:contact-protocol-links
 
 This skill defines patterns for implementing "zero-infrastructure" contact channels on static websites using native URI protocols.
 

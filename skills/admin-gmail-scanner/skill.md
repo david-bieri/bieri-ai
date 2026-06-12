@@ -19,13 +19,13 @@ Gmail (dedicated inbox)
     ↓  agent calls search_email directly (token isolation rule)
 Filtered email list
     ↓  write to /tmp/emails_to_scan.json
-Single bash call
-    ↓  start server → POST each email → kill server
+Single bash call (local)  — or —  direct POST (hosted app)
+    ↓  POST each email → write results
 /tmp/scan_results.json
     ↓  agent reads → notify if new items found
 ```
 
-**Token isolation rule:** The `gcal` connector's `search_email` must be called by the agent, not from inside bash. Write results to file first; then a single bash call handles all server-side work. See `admin:cron-agent`.
+**Token isolation rule:** The `gcal` connector's `search_email` must be called by the agent, not from inside bash. Write results to file first; then a single bash call (or a direct POST to the hosted URL) handles all server-side work. See `admin:cron-agent`.
 
 ---
 
@@ -71,13 +71,43 @@ Write to `/tmp/emails_to_scan.json` with these exact keys:
 ```
 Write `[]` if no relevant emails.
 
-### Step 4 — Run the single bash invocation
+### Step 4 — POST the emails
 
-```bash
-bash /home/user/workspace/post_emails.sh /tmp/emails_to_scan.json
+**If the app is hosted (Render, Railway, etc.)** — POST directly to the public URL; no local server start needed:
+
+```python
+import json, urllib.request
+
+API = "https://your-app.onrender.com/api/inbox/scan"  # public URL
+emails = json.load(open("/tmp/emails_to_scan.json"))
+results, total_extracted = [], 0
+
+for email in emails:
+    payload = json.dumps({
+        "gmail_id": email.get("gmail_id") or email.get("email_id", ""),
+        "subject":  email.get("subject", ""),
+        "from":     email.get("from", "") or email.get("from_", ""),
+        "date":     email.get("date", ""),
+        "snippet":  (email.get("snippet") or "")[:500],
+        "body":     (email.get("body") or "")[:3000],
+    }).encode()
+    try:
+        req = urllib.request.Request(API, data=payload,
+                                     headers={"Content-Type": "application/json"})
+        # 60s timeout — Render free tier may need 30-60s to wake from sleep
+        resp = json.loads(urllib.request.urlopen(req, timeout=60).read())
+    except Exception as e:
+        resp = {"error": str(e)}
+    # ... collect results, write /tmp/scan_results.json
 ```
 
-See `scripts/post_emails.sh` for the full runner (build → start → POST each email → kill → write results).
+**If the app runs locally in the agent sandbox** — use the single-invocation shell script:
+
+```bash
+bash scripts/post_emails.sh /tmp/emails_to_scan.json
+```
+
+See `scripts/post_emails.sh` for the full local runner (build → start → POST each email → kill → write results).
 
 ### Step 5 — Read results and notify
 
@@ -93,10 +123,20 @@ Results shape:
 ]}
 ```
 
-- `total_extracted > 0` → send in-app notification:
-  - Title: `"Family Hub — N new inbox items to review"`
-  - Body: bullet list of extracted subjects with counts
+- `total_extracted > 0` → send in-app notification (see Notification Format)
 - `total_extracted == 0` → end silently
+
+---
+
+## Notification Format
+
+```
+Title: "Family Hub — 3 new inbox items to review"
+Body:
+• #CAMP @Clara — Registration deadline (1 item)
+• #MED @Heidi — Vaccine reminder (1 item)
+• #PAY @Cole — Soccer payment due (1 item)
+```
 
 ---
 
@@ -106,7 +146,13 @@ Use a separate Gmail account (not personal) as the intake address:
 1. Create `yourapp@gmail.com`
 2. Family members forward relevant emails with `#TAG @Name` in the subject
 3. Connect via OAuth as a separate connector (not personal Gmail)
-4. Scanner reads only this inbox
+4. Scanner reads only this inbox — no personal email exposure
+
+---
+
+## Scheduling
+
+Designed to run as a daily cron (e.g. 7 AM EDT = `0 11 * * *` UTC). See `admin:cron-agent` for scheduling instructions and failure-mode handling.
 
 ---
 
@@ -118,6 +164,7 @@ Use a separate Gmail account (not personal) as the intake address:
 | 403 on POST | Proxy URL used | Use `http://localhost:PORT` |
 | Duplicate items | Missing deduplication | Check `gmail_id` filter before writing |
 | Token error in bash | `api_credentials` not set | Agent calls `search_email` directly |
+| Server not ready | Build takes > 30s | Increase the readiness poll timeout |
 
 ---
 

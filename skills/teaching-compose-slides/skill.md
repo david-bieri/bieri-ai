@@ -1,5 +1,5 @@
 
-# course:compose-slides
+# teaching:compose-slides
 
 ## When to invoke
 
@@ -39,7 +39,7 @@ From context or by asking:
 - **Content source** — KB search results, uploaded slides, user-provided outline,
   or KB + new material combined
 - **Video deck or in-person deck** — affects slide density and whether narration
-  notes are needed (see `course:video-scripts` for full narration guidance)
+  notes are needed (see `teaching:video-scripts` for full narration guidance)
 - **Slide count target** (default: 12–14 for a 10-min video; 20–30 for a full lecture)
 
 ### Step 2 — Search project knowledge (if available)
@@ -110,9 +110,9 @@ This is the single most important style rule:
 
 ---
 
-## News hook slides — see `course:news-hooks`
+## News hook slides — see `teaching:news-hooks`
 
-For any deck that needs "In the news" slides, invoke `course:news-hooks` to
+For any deck that needs "In the news" slides, invoke `teaching:news-hooks` to
 find stories and format them. The news slide format is defined in
 `references/slide-library.md` under `newsSlide()`.
 

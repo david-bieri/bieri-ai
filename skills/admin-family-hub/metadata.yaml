@@ -1,0 +1,8 @@
+# Authored metadata for admin-family-hub. The adapter derives `name` from the directory;
+# it is intentionally not set here.
+description: "Build and operate the full-stack family admin web app: calendar, categories, inbox scanning, medical/vaccine, pets, messaging, share links. Use to extend or debug the household portal."
+version: "1.2.0"
+created: "2026-06-11"
+updated: "2026-06-11"
+depends_on: ["admin:cron-agent", "admin:gmail-scanner", "admin:tag-parser", "webdev:deploy-render", "webdev:platform-migration", "webdev:supabase-app", "webdev:vite-express"]
+used_by: []

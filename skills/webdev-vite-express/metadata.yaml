@@ -1,0 +1,8 @@
+# Authored metadata for webdev-vite-express. The adapter derives `name` from the directory;
+# it is intentionally not set here.
+description: "Scaffold and build full-stack TypeScript apps with Vite (React) + Express in a monorepo: API proxy, Tailwind v3, production build, Docker. Use to create or fix a Vite+Express app or its build."
+version: "1.1.0"
+created: "2026-06-11"
+updated: "2026-06-11"
+depends_on: []
+used_by: ["admin:family-hub"]

@@ -1,0 +1,8 @@
+# Authored metadata for webdev-release-workflow. The adapter derives `name` from the directory;
+# it is intentionally not set here.
+description: "Orchestrator for releasing a web project: smoke test, docs sync, merge, deploy-verify, hotfixes. Use to run a branch-to-production release; delegates each step to specialized webdev skills."
+version: "1.0.0"
+created: "2026-06-11"
+updated: "2026-06-11"
+depends_on: ["webdev:cross-browser-smoke-test", "webdev:latex-pdf-guide", "webdev:static-site-i18n", "webdev:contact-protocol-links", "webdev:d3-analytics-modules", "webdev:json-data-enrichment"]
+used_by: []

@@ -1,5 +1,5 @@
 
-# course:news-hooks
+# teaching:news-hooks
 
 ## When to invoke
 

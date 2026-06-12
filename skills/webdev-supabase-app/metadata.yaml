@@ -1,0 +1,8 @@
+# Authored metadata for webdev-supabase-app. The adapter derives `name` from the directory;
+# it is intentionally not set here.
+description: "Design, migrate, and manage Supabase PostgreSQL schemas: RLS, idempotent migration SQL, TypeScript client, real-time. Use for any schema or database work on a Supabase-backed app."
+version: "1.1.0"
+created: "2026-06-11"
+updated: "2026-06-11"
+depends_on: []
+used_by: ["admin:family-hub"]

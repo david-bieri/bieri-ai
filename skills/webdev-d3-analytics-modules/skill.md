@@ -1,4 +1,4 @@
-# D3 Analytics Modules
+# webdev:d3-analytics-modules
 
 This skill defines the architecture for building interactive, tab-driven analytics dashboards using D3.js (or React/D3 hybrids) without a backend.
 

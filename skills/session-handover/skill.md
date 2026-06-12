@@ -210,16 +210,16 @@ This skill operates within a four-domain, three-layer architecture. Read
 | Domain | Session notes (fast) | Registry (slow) | Skills |
 |--------|---------------------|----------------|--------|
 | Research | `RESEARCH_SESSION_NOTES.md` | progress log | — |
-| Teaching | `TEACHING_SESSION_NOTES.md` | `SKILLS_MANIFEST.md` | `course:*` (7 active) |
+| Teaching | `TEACHING_SESSION_NOTES.md` | `SKILLS_MANIFEST.md` | `teaching:*` (6 active) |
 | Admin | `{PROJECT}_SESSION_NOTES.md` | project progress + decisions | (project-specific) |
 | Home | `HOME_SESSION_NOTES.md` | registry | — |
 
 **Three layers per domain:**
 - **Fast** — `{PREFIX}_SESSION_NOTES.md`: in-flight state, updated every session
 - **Slow** — registry file(s): stable, authoritative, rarely changed
-- **Skills** — domain-specific Claude skills (`course:*` namespace for Teaching)
+- **Skills** — domain-specific Claude skills (`teaching:*` namespace for Teaching)
 
-**Meta layer:** `course:skill-builder` + `audit_skill.py` governs the skills library.
+**Meta layer:** `teaching:skill-builder` + `audit_skill.py` governs the skills library.
 
 **Starting a new domain:** create `{PREFIX}_SESSION_NOTES.md` with the project
 configuration block (see "Project configuration block" section above) and add
@@ -237,5 +237,5 @@ stored at `OneDrive/Teaching/Architecture/`.
 - **1.1.0** (2026-06-09): Added Architecture reference section with
   four-domain table, layer descriptions, and diagram pointer.
 - **1.0.0** (2026-06-09): Created by consolidating `agw-handover`
-  (AGW website project) and `course:handover` (teaching project) into a
+  (AGW website project) and `teaching:handover` (teaching project) into a
   single generic skill. Both predecessors retired.

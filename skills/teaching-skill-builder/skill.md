@@ -1,7 +1,7 @@
 
-# course:skill-builder
+# teaching:skill-builder
 
-Creates, audits, and maintains teaching skills in the `course:` namespace.
+Creates, audits, and maintains teaching skills in the `teaching:` namespace.
 
 ---
 
@@ -39,22 +39,27 @@ Files must NOT be directly in the ZIP root — the skill folder must be the root
 
 ---
 
-## Our conventions (course: namespace)
+## Our conventions (bieri-ai contract)
 
-Additional frontmatter fields we use beyond the official spec:
+> **Source of truth:** `CONTRIBUTING.md` at the repo root. The rules below are the teaching-domain view of it.
+
+`skill.md` is pure Markdown with **no YAML frontmatter** — the adapter adds the
+frontmatter at wrap time, and derives `name` from the directory (`teaching-news-hooks`
+→ `teaching:news-hooks`), so identity can never drift. Authored metadata lives in a
+`metadata.yaml` sidecar next to `skill.md`:
 
 ```yaml
+# metadata.yaml — name is NOT set here (adapter derives it from the directory)
+description: "≤200 chars. Core trigger. Use for X, Y, Z."
 version: "1.0.1"          # semantic: major.minor.patch
 created: "YYYY-MM-DD"      # immutable
 updated: "YYYY-MM-DD"      # bump on every change
-depends_on: []             # other course: skills this one calls or requires
+depends_on: []             # other skills (colon identity) this one calls or requires
 used_by: []                # reverse index — which skills call this one
-manifest_update: "..."     # enforcement reminder (same text on every skill)
 ```
 
-These are extra metadata — Claude reads them but does not act on them natively.
-Skill composition is emergent (Claude reads multiple skills automatically);
-`depends_on` is for human and manifest tracking only.
+`depends_on`/`used_by` are the composition graph — they now flow through the adapter
+into the deployed artifact, so keep them accurate.
 
 **Version bumping convention:**
 - **Patch** (1.0.0 → 1.0.1): bug fixes, wording tweaks, compliance corrections
@@ -72,22 +77,12 @@ Extract from the conversation:
 - What are the inputs and outputs?
 - Does it depend on other skills or on the KB being present?
 
-### Step 2 — Write SKILL.md
+### Step 2 — Write `skill.md` (no frontmatter) + `metadata.yaml`
+
+`skill.md` is pure Markdown, starting at the H1 — no frontmatter:
 
 ```
----
-name: course:skill-name
-description: >
-  [≤200 chars. Core trigger statement. "Use for X, Y, Z."]
-version: "1.1.1"
-created: "YYYY-MM-DD"
-updated: "YYYY-MM-DD"
-depends_on: [list of course: skills required]
-used_by: []
-manifest_update: "After any change to this skill, update version, updated date, and SKILLS_MANIFEST.md before closing the session."
----
-
-# course:skill-name
+# teaching:skill-name
 
 [One-line summary]
 
@@ -101,6 +96,20 @@ manifest_update: "After any change to this skill, update version, updated date, 
 
 ## [Workflow sections…]
 ```
+
+Then a `metadata.yaml` sidecar carries the authored metadata (copy `templates/metadata.yaml`):
+
+```yaml
+description: "≤200 chars. Core trigger statement. Use for X, Y, Z."
+version: "1.0.0"
+created: "YYYY-MM-DD"
+updated: "YYYY-MM-DD"
+depends_on: [list of skills required, by colon identity]
+used_by: []
+```
+
+`name` is **not** written anywhere — the adapter derives `teaching:skill-name` from the
+`teaching-skill-name` directory.
 
 **Description writing rule:** Write the description last, after the body is complete.
 Distil to ≤200 chars: name the task, name the trigger contexts, name any hard
@@ -244,16 +253,16 @@ Skills live as source in the pillar repo, packaged on demand:
   shared-skills/session-handover/
 ```
 
-## Known skills in the course: library
+## Known skills in the teaching: library
 
 | Skill | Purpose |
 |-------|---------|
-| `course:news-hooks` | "In the news" slide search and formatting |
-| `course:build-kb` | PPTX → KB extraction via build_kb.py |
-| `course:video-scripts` | Narration script generation (130 wpm) |
-| `course:compose-slides` | Lecture deck composition in house style |
-| `course:assess-from-kb` | Assessment generation from KB content |
-| `course:skill-builder` | This skill — library creation and maintenance |
+| `teaching:news-hooks` | "In the news" slide search and formatting |
+| `teaching:build-kb` | PPTX → KB extraction via build_kb.py |
+| `teaching:video-scripts` | Narration script generation (130 wpm) |
+| `teaching:compose-slides` | Lecture deck composition in house style |
+| `teaching:assess-from-kb` | Assessment generation from KB content |
+| `teaching:skill-builder` | This skill — library creation and maintenance |
 
 Manifest: `SKILLS_MANIFEST.md` in Project knowledge.
 Storage: `OneDrive - Virginia Tech/Teaching/Skills/`

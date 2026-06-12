@@ -1,0 +1,8 @@
+# Authored metadata for admin-cron-agent. The adapter derives `name` from the directory;
+# it is intentionally not set here.
+description: "Schedule recurring agent tasks as durable cron jobs. Use for periodic automation — daily scans, data sync, digests, health checks. Covers single-invocation, token isolation, hosted vs sandbox cron."
+version: "1.1.0"
+created: "2026-06-11"
+updated: "2026-06-11"
+depends_on: []
+used_by: ["admin:family-hub", "admin:gmail-scanner"]

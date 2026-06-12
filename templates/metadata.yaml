@@ -1,0 +1,8 @@
+# Authored metadata for a bieri-ai skill. The adapter reads this; `name` is
+# always derived from the directory, so it is intentionally NOT set here.
+description: "{≤200 chars. What it does + when to use. 'Use for X, Y, Z.'}"
+version: "1.0.0"
+created: "{YYYY-MM-DD}"
+updated: "{YYYY-MM-DD}"
+depends_on: []
+used_by: []

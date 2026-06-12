@@ -7,13 +7,17 @@ into a Claude-compatible .skill package (ZIP with YAML frontmatter SKILL.md).
 
 Usage:
     python adapters/claude/wrap_skill.py skills/<name>
-    python adapters/claude/wrap_skill.py skills/<name> --output dist/
+    python adapters/claude/wrap_skill.py skills/<name> --output dist/claude
 
-The output is a .skill ZIP file ready for upload to Claude Desktop:
-    Claude Desktop → Cowork → Customize → Skills → + → upload
-
-Frontmatter fields are read from a metadata.yaml sidecar file if present,
-or inferred from the skill.md content and directory name.
+Identity contract:
+    `name` is ALWAYS derived from the directory name (the single source of
+    truth) so a sidecar can never reintroduce namespace drift:
+        teaching-news-hooks      -> teaching:news-hooks
+        webdev-supabase-app      -> webdev:supabase-app
+        admin-cron-agent         -> admin:cron-agent
+        session-handover         -> session-handover   (bare / universal)
+    Authored metadata (description, version, dates, depends_on, used_by) is
+    read from a metadata.yaml sidecar beside skill.md when present.
 """
 import argparse
 import re
@@ -22,113 +26,99 @@ import zipfile
 from datetime import date
 from pathlib import Path
 
+NAMESPACES = {"admin", "teaching", "research", "webdev", "home"}
 
-# ── Metadata extraction ────────────────────────────────────────────────────
 
-def infer_metadata(skill_dir: Path, content: str) -> dict:
-    """Infer Claude YAML frontmatter from skill.md content and directory name."""
+# ── Identity ───────────────────────────────────────────────────────────────
+
+def canonical_name(dir_name: str) -> str:
+    """Derive the colon-namespaced identity from the hyphenated directory name."""
+    prefix, _, rest = dir_name.partition("-")
+    if prefix in NAMESPACES and rest:
+        return f"{prefix}:{rest}"
+    return dir_name  # bare / universal skills (e.g. session-handover)
+
+
+# ── Metadata ───────────────────────────────────────────────────────────────
+
+def read_metadata_sidecar(skill_dir: Path) -> dict:
+    """Read metadata.yaml sidecar if it exists (flat key-value + simple lists)."""
+    sidecar = skill_dir / "metadata.yaml"
+    if not sidecar.exists():
+        return {}
     meta = {}
-
-    # Name: derive from directory name
-    dir_name = skill_dir.name
-    # Convert "teaching-news-hooks" → "course:news-hooks"
-    # Convert "webdev-static-site-i18n" → "webdev:static-site-i18n"
-    # Convert "session-handover" → "session-handover"
-    if dir_name.startswith("teaching-"):
-        meta["name"] = "course:" + dir_name[len("teaching-"):]
-    elif dir_name.startswith("webdev-"):
-        meta["name"] = dir_name  # keep as-is for webdev skills
-    else:
-        meta["name"] = dir_name
-
-    # Description: extract from first paragraph after the title
-    # Look for text between the title and the first ## heading
-    lines = content.split("\n")
-    desc_lines = []
-    in_desc = False
-    for line in lines:
-        if line.startswith("# ") and not in_desc:
-            in_desc = True
+    for line in sidecar.read_text().splitlines():
+        line = line.rstrip()
+        if not line or line.lstrip().startswith("#") or ":" not in line:
             continue
-        if in_desc:
-            if line.startswith("##") or line.startswith("---"):
-                break
-            if line.strip():
-                desc_lines.append(line.strip())
-    desc = " ".join(desc_lines)[:200]
-    meta["description"] = desc if desc else f"Skill: {dir_name}"
-
-    # Version and dates
-    meta["version"] = "1.0.0"
-    meta["created"] = str(date.today())
-    meta["updated"] = str(date.today())
-
-    # Dependencies
-    meta["depends_on"] = []
-    meta["used_by"] = []
-
+        key, val = line.split(":", 1)
+        key, val = key.strip(), val.strip()
+        if val.startswith("[") and val.endswith("]"):
+            val = [v.strip().strip('"').strip("'")
+                   for v in val[1:-1].split(",") if v.strip()]
+        else:
+            val = val.strip('"').strip("'")
+        meta[key] = val
     return meta
 
 
-def read_metadata_sidecar(skill_dir: Path) -> dict | None:
-    """Read metadata.yaml sidecar if it exists."""
-    sidecar = skill_dir / "metadata.yaml"
-    if not sidecar.exists():
-        return None
-    try:
-        # Simple YAML parsing for flat key-value pairs
-        meta = {}
-        content = sidecar.read_text()
-        for line in content.strip().split("\n"):
-            if ":" in line and not line.startswith("#"):
-                key, val = line.split(":", 1)
-                key = key.strip()
-                val = val.strip().strip('"').strip("'")
-                if val.startswith("[") and val.endswith("]"):
-                    # Parse simple list
-                    val = [v.strip().strip('"').strip("'")
-                           for v in val[1:-1].split(",") if v.strip()]
-                meta[key] = val
-        return meta
-    except Exception:
-        return None
+def scrape_description(content: str) -> str:
+    """Fallback only: first prose paragraph after the H1, capped at 200 chars."""
+    lines = content.split("\n")
+    desc, in_body = [], False
+    for line in lines:
+        if line.startswith("# ") and not in_body:
+            in_body = True
+            continue
+        if in_body:
+            if line.startswith("#") or line.startswith("---"):
+                if desc:
+                    break
+                continue  # skip dividers/sub-headings until we hit prose
+            if line.strip():
+                desc.append(line.strip())
+    return " ".join(desc)[:200]
 
 
-# ── Frontmatter generation ─────────────────────────────────────────────────
+def build_metadata(skill_dir: Path, content: str) -> dict:
+    """name is always derived; the sidecar supplies the rest, with fallbacks."""
+    side = read_metadata_sidecar(skill_dir)
+    name = canonical_name(skill_dir.name)
+    desc = side.get("description") or scrape_description(content) or f"Skill: {name}"
+    return {
+        "name": name,
+        "description": desc[:200],
+        "version": side.get("version", "1.0.0"),
+        "created": side.get("created", str(date.today())),
+        "updated": side.get("updated", str(date.today())),
+        "depends_on": side.get("depends_on", []),
+        "used_by": side.get("used_by", []),
+    }
+
+
+# ── Frontmatter ────────────────────────────────────────────────────────────
 
 def build_frontmatter(meta: dict) -> str:
-    """Build Claude-compatible YAML frontmatter string."""
-    lines = ["---"]
-    lines.append(f'name: {meta["name"]}')
-
-    # Multi-line description (Claude format)
+    lines = ["---", f'name: {meta["name"]}']
     desc = meta["description"]
     if len(desc) > 80:
         lines.append("description: >")
-        # Wrap at ~78 chars with 2-space indent
-        words = desc.split()
-        current_line = "  "
-        for word in words:
-            if len(current_line) + len(word) + 1 > 80:
-                lines.append(current_line)
-                current_line = "  " + word
+        cur = "  "
+        for word in desc.split():
+            if len(cur) + len(word) + 1 > 80:
+                lines.append(cur)
+                cur = "  " + word
             else:
-                current_line += (" " if current_line.strip() else "") + word
-        if current_line.strip():
-            lines.append(current_line)
+                cur += (" " if cur.strip() else "") + word
+        if cur.strip():
+            lines.append(cur)
     else:
-        lines.append(f"description: >{chr(10)}  {desc}")
-
-    lines.append(f'version: "{meta.get("version", "1.0.0")}"')
-    lines.append(f'created: "{meta.get("created", str(date.today()))}"')
-    lines.append(f'updated: "{meta.get("updated", str(date.today()))}"')
-
-    depends = meta.get("depends_on", [])
-    lines.append(f'depends_on: {depends}')
-
-    used_by = meta.get("used_by", [])
-    lines.append(f'used_by: {used_by}')
-
+        lines.append(f"description: >\n  {desc}")
+    lines.append(f'version: "{meta["version"]}"')
+    lines.append(f'created: "{meta["created"]}"')
+    lines.append(f'updated: "{meta["updated"]}"')
+    lines.append(f'depends_on: {meta["depends_on"]}')
+    lines.append(f'used_by: {meta["used_by"]}')
     lines.append(
         'manifest_update: "After any change to this skill, update version, '
         'updated date, and SKILLS_MANIFEST.md before closing the session."'
@@ -140,65 +130,51 @@ def build_frontmatter(meta: dict) -> str:
 # ── Packaging ──────────────────────────────────────────────────────────────
 
 def wrap_skill(skill_dir: Path, output_dir: Path) -> Path:
-    """Wrap a skill directory into a Claude .skill ZIP package."""
     skill_md = skill_dir / "skill.md"
     if not skill_md.exists():
         print(f"ERROR: {skill_md} not found")
         sys.exit(1)
 
     content = skill_md.read_text()
+    meta = build_metadata(skill_dir, content)
+    claude_content = build_frontmatter(meta) + "\n" + content
 
-    # Get metadata from sidecar or infer
-    meta = read_metadata_sidecar(skill_dir)
-    if meta is None:
-        meta = infer_metadata(skill_dir, content)
-
-    # Build the Claude SKILL.md with frontmatter
-    frontmatter = build_frontmatter(meta)
-    claude_content = frontmatter + "\n" + content
-
-    # Determine the folder name inside the ZIP (Claude convention)
-    zip_folder_name = meta["name"].replace(":", "")  # "course:news-hooks" → "coursenews-hooks"
-
-    # Create output directory
+    # ZIP folder = hyphenated directory name (clean, colon-free, filesystem-safe).
+    zip_folder_name = skill_dir.name
     output_dir.mkdir(parents=True, exist_ok=True)
     output_path = output_dir / f"{zip_folder_name}.skill"
 
-    # Build ZIP
     with zipfile.ZipFile(output_path, "w", zipfile.ZIP_DEFLATED) as zf:
-        # Add SKILL.md
         zf.writestr(f"{zip_folder_name}/SKILL.md", claude_content)
-
-        # Add any references/ and scripts/ directories
-        for subdir in ("references", "scripts"):
+        for subdir in ("references", "scripts", "assets"):
             sub_path = skill_dir / subdir
             if sub_path.exists():
                 for file in sub_path.rglob("*"):
                     if file.is_file() and not file.name.startswith("."):
                         arcname = f"{zip_folder_name}/{subdir}/{file.relative_to(sub_path)}"
                         zf.write(file, arcname)
-
     return output_path
 
 
-# ── CLI ────────────────────────────────────────────────────────────────────
-
 def main():
-    parser = argparse.ArgumentParser(
-        description="Wrap a bieri-ai skill into a Claude .skill package"
-    )
-    parser.add_argument("skill_dir", type=Path, help="Path to skill directory (e.g., skills/teaching-news-hooks)")
-    parser.add_argument("--output", "-o", type=Path, default=Path("dist/claude"),
-                        help="Output directory for .skill file (default: dist/claude)")
+    parser = argparse.ArgumentParser(description="Wrap a bieri-ai skill into a Claude .skill package")
+    parser.add_argument("skill_dir", type=Path, nargs="?", help="Path to skill directory (e.g., skills/teaching-news-hooks)")
+    parser.add_argument("--output", "-o", type=Path, default=Path("dist/claude"))
+    parser.add_argument("--all", action="store_true", help="Wrap every skill under skills/")
+    parser.add_argument("--dry-run", action="store_true", help="Print the emitted name without writing a ZIP")
     args = parser.parse_args()
 
-    if not args.skill_dir.is_dir():
-        print(f"ERROR: {args.skill_dir} is not a directory")
-        sys.exit(1)
-
-    output_path = wrap_skill(args.skill_dir, args.output)
-    print(f"✓  Packaged: {output_path}")
-    print(f"   Install: Claude Desktop → Cowork → Customize → Skills → + → upload")
+    targets = sorted(p for p in Path("skills").iterdir() if p.is_dir()) if args.all else [args.skill_dir]
+    for target in targets:
+        if not target.is_dir():
+            print(f"ERROR: {target} is not a directory")
+            sys.exit(1)
+        if args.dry_run:
+            content = (target / "skill.md").read_text() if (target / "skill.md").exists() else ""
+            print(f"{target.name:34s} -> name: {build_metadata(target, content)['name']}")
+        else:
+            out = wrap_skill(target, args.output)
+            print(f"✓  Packaged: {out}")
 
 
 if __name__ == "__main__":

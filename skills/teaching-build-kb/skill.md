@@ -1,5 +1,5 @@
 
-# course:build-kb
+# teaching:build-kb
 
 ## When to invoke
 

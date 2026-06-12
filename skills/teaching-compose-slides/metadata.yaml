@@ -1,0 +1,8 @@
+# Authored metadata for teaching-compose-slides. The adapter derives `name` from the directory;
+# it is intentionally not set here.
+description: "Build lecture decks in Bieri house style (pptxgenjs) for REAL/UAP courses. Use to generate or extend a deck; reads bundled style and slide-library references first."
+version: "1.0.0"
+created: "2026-06-11"
+updated: "2026-06-11"
+depends_on: ["teaching:build-kb", "teaching:news-hooks", "teaching:video-scripts"]
+used_by: []

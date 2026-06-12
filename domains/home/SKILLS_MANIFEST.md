@@ -8,10 +8,10 @@
 
 | Skill | Location | Version | Status | Updated |
 |-------|----------|---------|--------|---------|
-| `admin-family-hub` | `skills/admin-family-hub/` | 1.0.0 | Active | 2026-06-10 |
-| `admin-gmail-scanner` | `skills/admin-gmail-scanner/` | 1.0.0 | Active | 2026-06-10 |
+| `admin-family-hub` | `skills/admin-family-hub/` | 1.2.0 | Active | 2026-06-11 |
+| `admin-gmail-scanner` | `skills/admin-gmail-scanner/` | 1.1.0 | Active | 2026-06-11 |
 | `admin-tag-parser` | `skills/admin-tag-parser/` | 1.0.0 | Active | 2026-06-10 |
-| `admin-cron-agent` | `skills/admin-cron-agent/` | 1.0.0 | Active | 2026-06-10 |
+| `admin-cron-agent` | `skills/admin-cron-agent/` | 1.1.0 | Active | 2026-06-11 |
 
 ---
 
@@ -44,3 +44,4 @@ See `HOME_SESSION_NOTES.md` for in-flight state.
 | Date | Action | Detail |
 |------|--------|--------|
 | 2026-06-10 | Created | Home domain initialized with family hub skill suite |
+| 2026-06-11 | Normalized | Contract normalization — colon identities + sidecars; `admin:family-hub` v1.2.0, `admin:cron-agent`/`admin:gmail-scanner` v1.1.0 |

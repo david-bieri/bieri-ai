@@ -1,5 +1,5 @@
 
-# course:video-scripts
+# teaching:video-scripts
 
 ## When to invoke
 
