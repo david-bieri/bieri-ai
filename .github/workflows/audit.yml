@@ -1,0 +1,23 @@
+name: skill-contract-audit
+
+# The universal drift guard. Every platform (Claude, Codex, Manus, Perplexity)
+# commits to this repo, so running the auditor here catches non-compliant skills
+# regardless of which agent authored them. The auditor exits non-zero on any
+# [FAIL], which fails the check.
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run skill-contract auditor
+        run: python skills/teaching-skill-builder/scripts/audit_skill.py --all

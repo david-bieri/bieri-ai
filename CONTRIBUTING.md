@@ -2,6 +2,8 @@
 
 This document outlines the governance rules, update ceremonies, and lifecycle management for the `bieri-ai` ecosystem.
 
+> **Quick reference for agents:** [`AGENTS.md`](AGENTS.md) is the short, pasteable version of the skill contract (the six invariants), auto-discovered by repo-reading tools and safe to paste into a Manus task or Perplexity prompt. This document is the full ruleset behind it. The auditor (`audit_skill.py --all`) enforces the contract in CI on every push and PR.
+
 ## 1. The Golden Rule of State
 
 **No AI session may end with uncommitted state.**
