@@ -1,0 +1,8 @@
+# Authored metadata for research-corpus-search. The adapter derives `name` from the
+# directory; it is intentionally not set here.
+description: "Search a large PDF archive for a target term or entity via parallel PyMuPDF extraction, with disambiguation, CSV/report output, and an OCR fallback for scanned PDFs. Use for corpus reference-hunting."
+version: "1.0.0"
+created: "2026-06-12"
+updated: "2026-06-12"
+depends_on: []
+used_by: []
