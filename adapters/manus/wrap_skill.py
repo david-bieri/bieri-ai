@@ -41,7 +41,7 @@ def read_metadata_sidecar(skill_dir: Path) -> dict:
     if not sidecar.exists():
         return {}
     meta = {}
-    for line in sidecar.read_text().splitlines():
+    for line in sidecar.read_text(encoding="utf-8").splitlines():
         line = line.rstrip()
         if not line or line.lstrip().startswith("#") or ":" not in line:
             continue
@@ -106,7 +106,7 @@ def wrap_skill(skill_dir: Path, output_dir: Path) -> Path:
         print(f"ERROR: {skill_md} not found")
         sys.exit(1)
 
-    content = skill_md.read_text()
+    content = skill_md.read_text(encoding="utf-8")
     meta = build_metadata(skill_dir, content)
     manus_content = build_frontmatter(meta) + "\n" + content
 
@@ -114,7 +114,7 @@ def wrap_skill(skill_dir: Path, output_dir: Path) -> Path:
     skill_output_dir = output_dir / skill_dir.name
     skill_output_dir.mkdir(parents=True, exist_ok=True)
     output_path = skill_output_dir / "SKILL.md"
-    output_path.write_text(manus_content)
+    output_path.write_text(manus_content, encoding="utf-8")
 
     for subdir in ("references", "scripts", "assets"):
         sub_path = skill_dir / subdir
@@ -152,7 +152,7 @@ def main():
             print(f"ERROR: {skills_root} not found")
             sys.exit(1)
         results = wrap_all(skills_root, args.output)
-        print(f"✓  Wrapped {len(results)} skills into {args.output}/")
+        print(f"[OK]  Wrapped {len(results)} skills into {args.output}/")
         for r in results:
             print(f"   {r.parent.name}/SKILL.md")
     else:
@@ -162,7 +162,7 @@ def main():
             print(f"ERROR: {args.skill_dir} is not a directory")
             sys.exit(1)
         output_path = wrap_skill(args.skill_dir, args.output)
-        print(f"✓  Wrapped: {output_path}")
+        print(f"[OK]  Wrapped: {output_path}")
 
 
 if __name__ == "__main__":

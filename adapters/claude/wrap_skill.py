@@ -47,7 +47,7 @@ def read_metadata_sidecar(skill_dir: Path) -> dict:
     if not sidecar.exists():
         return {}
     meta = {}
-    for line in sidecar.read_text().splitlines():
+    for line in sidecar.read_text(encoding="utf-8").splitlines():
         line = line.rstrip()
         if not line or line.lstrip().startswith("#") or ":" not in line:
             continue
@@ -135,7 +135,7 @@ def wrap_skill(skill_dir: Path, output_dir: Path) -> Path:
         print(f"ERROR: {skill_md} not found")
         sys.exit(1)
 
-    content = skill_md.read_text()
+    content = skill_md.read_text(encoding="utf-8")
     meta = build_metadata(skill_dir, content)
     claude_content = build_frontmatter(meta) + "\n" + content
 
@@ -170,11 +170,11 @@ def main():
             print(f"ERROR: {target} is not a directory")
             sys.exit(1)
         if args.dry_run:
-            content = (target / "skill.md").read_text() if (target / "skill.md").exists() else ""
+            content = (target / "skill.md").read_text(encoding="utf-8") if (target / "skill.md").exists() else ""
             print(f"{target.name:34s} -> name: {build_metadata(target, content)['name']}")
         else:
             out = wrap_skill(target, args.output)
-            print(f"✓  Packaged: {out}")
+            print(f"[OK]  Packaged: {out}")
 
 
 if __name__ == "__main__":

@@ -67,7 +67,7 @@ def audit_source_dir(skill_dir: Path) -> tuple:
     src = skill_dir / "skill.md"
     if not src.exists():
         return name, ["FAIL: skill.md not found (orphan? wrapped-only skills need a source)"]
-    content = src.read_text()
+    content = src.read_text(encoding="utf-8")
 
     # 1. No frontmatter in source
     if content.lstrip().startswith("---"):
@@ -90,7 +90,7 @@ def audit_source_dir(skill_dir: Path) -> tuple:
     if not side.exists():
         issues.append("FAIL: metadata.yaml sidecar not found")
     else:
-        meta = side.read_text()
+        meta = side.read_text(encoding="utf-8")
         if re.search(r'^name:\s*', meta, re.M):
             issues.append("WARN: metadata.yaml should NOT set 'name' (it is derived from the directory)")
         dm = re.search(r'^description:\s*"?(.+?)"?\s*$', meta, re.M)
@@ -121,12 +121,12 @@ def report(name: str, issues: list) -> bool:
     fails = [i for i in issues if i.startswith("FAIL")]
     warns = [i for i in issues if i.startswith("WARN")]
     if not issues:
-        print("✓  All checks passed")
+        print("[OK]  All checks passed")
     else:
         for f in fails:
-            print(f"  ✗  {f[5:]}")
+            print(f"  [FAIL]  {f[5:]}")
         for w in warns:
-            print(f"  ⚠  {w[5:]}")
+            print(f"  [WARN]  {w[5:]}")
     return len(fails) == 0
 
 
