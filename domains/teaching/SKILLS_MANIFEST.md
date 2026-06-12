@@ -24,3 +24,4 @@
 |------|---------|---------|
 | 2026-06-10 | 2.0.0 | Migrated to unified bieri-ai monorepo architecture |
 | 2026-06-11 | 2.1.0 | Contract normalization — `course:`→`teaching:`, no-frontmatter + `metadata.yaml` sidecars, skill-builder aligned to the bieri-ai contract |
+| 2026-06-11 | 2.1.1 | `teaching:skill-builder` → v1.1.0: `audit_skill.py` realigned to the bieri-ai contract (audits `skill.md` + `metadata.yaml`, validates derived identity); Manus adapter brought to Claude-adapter parity (derived colon name, sidecar metadata, graph) |

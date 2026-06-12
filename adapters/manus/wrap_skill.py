@@ -7,117 +7,116 @@ into a Manus-compatible SKILL.md with YAML frontmatter.
 
 Usage:
     python adapters/manus/wrap_skill.py skills/<name>
-    python adapters/manus/wrap_skill.py skills/<name> --output dist/manus/
+    python adapters/manus/wrap_skill.py --all -o dist/manus
 
-The output is a directory with SKILL.md that can be placed in
-/home/ubuntu/skills/<name>/ on a Manus sandbox, or attached via a GitHub
-repository that Manus discovers automatically.
-
-Manus SKILL.md format:
-    ---
-    name: <skill-name>
-    description: <one-line description>
-    ---
-    <body content>
+Identity contract (matches the Claude adapter):
+    `name` is ALWAYS derived from the directory (the single source of truth),
+    so a sidecar can never reintroduce namespace drift:
+        teaching-news-hooks -> teaching:news-hooks
+        session-handover    -> session-handover   (bare / universal)
+    Authored metadata (description, version, depends_on, used_by) is read from
+    a metadata.yaml sidecar when present. The OUTPUT directory uses the
+    hyphenated directory name (filesystem-safe), while frontmatter `name`
+    carries the colon identity.
 """
 import argparse
-import re
 import sys
 from datetime import date
 from pathlib import Path
 
+NAMESPACES = {"admin", "teaching", "research", "webdev", "home"}
 
-# ── Metadata extraction ────────────────────────────────────────────────────
 
-def infer_metadata(skill_dir: Path, content: str) -> dict:
-    """Infer Manus YAML frontmatter from skill.md content and directory name."""
+def canonical_name(dir_name: str) -> str:
+    """Derive the colon-namespaced identity from the hyphenated directory name."""
+    prefix, _, rest = dir_name.partition("-")
+    if prefix in NAMESPACES and rest:
+        return f"{prefix}:{rest}"
+    return dir_name  # bare / universal skills (e.g. session-handover)
+
+
+def read_metadata_sidecar(skill_dir: Path) -> dict:
+    """Read metadata.yaml sidecar if present (flat keys + simple flow lists)."""
+    sidecar = skill_dir / "metadata.yaml"
+    if not sidecar.exists():
+        return {}
     meta = {}
-
-    # Name: use directory name directly (Manus uses directory-based discovery)
-    dir_name = skill_dir.name
-    meta["name"] = dir_name
-
-    # Description: extract from first paragraph after the title
-    lines = content.split("\n")
-    desc_lines = []
-    in_desc = False
-    for line in lines:
-        if line.startswith("# ") and not in_desc:
-            in_desc = True
+    for line in sidecar.read_text().splitlines():
+        line = line.rstrip()
+        if not line or line.lstrip().startswith("#") or ":" not in line:
             continue
-        if in_desc:
-            if line.startswith("##") or line.startswith("---"):
-                break
-            if line.strip():
-                desc_lines.append(line.strip())
-    desc = " ".join(desc_lines)[:200]
-    meta["description"] = desc if desc else f"Skill: {dir_name}"
-
+        key, val = line.split(":", 1)
+        key, val = key.strip(), val.strip()
+        if val.startswith("[") and val.endswith("]"):
+            val = [v.strip().strip('"').strip("'")
+                   for v in val[1:-1].split(",") if v.strip()]
+        else:
+            val = val.strip('"').strip("'")
+        meta[key] = val
     return meta
 
 
-def read_metadata_sidecar(skill_dir: Path) -> dict | None:
-    """Read metadata.yaml sidecar if it exists."""
-    sidecar = skill_dir / "metadata.yaml"
-    if not sidecar.exists():
-        return None
-    try:
-        meta = {}
-        content = sidecar.read_text()
-        for line in content.strip().split("\n"):
-            if ":" in line and not line.startswith("#"):
-                key, val = line.split(":", 1)
-                key = key.strip()
-                val = val.strip().strip('"').strip("'")
-                meta[key] = val
-        return meta
-    except Exception:
-        return None
+def scrape_description(content: str) -> str:
+    """Fallback only: first prose paragraph after the H1, capped at 200 chars."""
+    desc, in_body = [], False
+    for line in content.split("\n"):
+        if line.startswith("# ") and not in_body:
+            in_body = True
+            continue
+        if in_body:
+            if line.startswith("#") or line.startswith("---"):
+                if desc:
+                    break
+                continue
+            if line.strip():
+                desc.append(line.strip())
+    return " ".join(desc)[:200]
 
 
-# ── Frontmatter generation ─────────────────────────────────────────────────
+def build_metadata(skill_dir: Path, content: str) -> dict:
+    """name is always derived; the sidecar supplies the rest, with fallbacks."""
+    side = read_metadata_sidecar(skill_dir)
+    name = canonical_name(skill_dir.name)
+    desc = side.get("description") or scrape_description(content) or f"Skill: {name}"
+    return {
+        "name": name,
+        "description": desc[:200],
+        "version": side.get("version", "1.0.0"),
+        "depends_on": side.get("depends_on", []),
+        "used_by": side.get("used_by", []),
+    }
+
 
 def build_frontmatter(meta: dict) -> str:
-    """Build Manus-compatible YAML frontmatter string."""
     lines = [
         "---",
         f'name: {meta["name"]}',
         f'description: {meta["description"]}',
+        f'version: "{meta["version"]}"',
+        f'depends_on: {meta["depends_on"]}',
+        f'used_by: {meta["used_by"]}',
         "---",
     ]
     return "\n".join(lines)
 
 
-# ── Packaging ──────────────────────────────────────────────────────────────
-
 def wrap_skill(skill_dir: Path, output_dir: Path) -> Path:
-    """Wrap a skill directory into a Manus-compatible skill directory."""
     skill_md = skill_dir / "skill.md"
     if not skill_md.exists():
         print(f"ERROR: {skill_md} not found")
         sys.exit(1)
 
     content = skill_md.read_text()
+    meta = build_metadata(skill_dir, content)
+    manus_content = build_frontmatter(meta) + "\n" + content
 
-    # Get metadata from sidecar or infer
-    meta = read_metadata_sidecar(skill_dir)
-    if meta is None:
-        meta = infer_metadata(skill_dir, content)
-
-    # Build the Manus SKILL.md with frontmatter
-    frontmatter = build_frontmatter(meta)
-    manus_content = frontmatter + "\n" + content
-
-    # Create output directory matching Manus convention
-    skill_output_dir = output_dir / meta["name"]
+    # Output dir uses the hyphenated directory name (filesystem-safe, colon-free).
+    skill_output_dir = output_dir / skill_dir.name
     skill_output_dir.mkdir(parents=True, exist_ok=True)
-
-    # Write SKILL.md
     output_path = skill_output_dir / "SKILL.md"
     output_path.write_text(manus_content)
 
-    # Copy any references/ and scripts/ directories
-    for subdir in ("references", "scripts"):
+    for subdir in ("references", "scripts", "assets"):
         sub_path = skill_dir / subdir
         if sub_path.exists():
             dest = skill_output_dir / subdir
@@ -127,39 +126,26 @@ def wrap_skill(skill_dir: Path, output_dir: Path) -> Path:
                     target = dest / file.relative_to(sub_path)
                     target.parent.mkdir(parents=True, exist_ok=True)
                     target.write_bytes(file.read_bytes())
-
     return output_path
 
 
-# ── Batch mode ─────────────────────────────────────────────────────────────
-
-def wrap_all(skills_root: Path, output_dir: Path) -> list[Path]:
-    """Wrap all skills in the skills/ directory."""
+def wrap_all(skills_root: Path, output_dir: Path) -> list:
     results = []
     for skill_dir in sorted(skills_root.iterdir()):
         if skill_dir.is_dir() and (skill_dir / "skill.md").exists():
-            output_path = wrap_skill(skill_dir, output_dir)
-            results.append(output_path)
+            results.append(wrap_skill(skill_dir, output_dir))
     return results
 
 
-# ── CLI ────────────────────────────────────────────────────────────────────
-
 def main():
-    parser = argparse.ArgumentParser(
-        description="Wrap a bieri-ai skill into Manus SKILL.md format"
-    )
+    parser = argparse.ArgumentParser(description="Wrap a bieri-ai skill into Manus SKILL.md format")
     parser.add_argument("skill_dir", type=Path, nargs="?",
-                        help="Path to skill directory (e.g., skills/teaching-news-hooks). "
-                             "If omitted with --all, wraps all skills.")
-    parser.add_argument("--output", "-o", type=Path, default=Path("dist/manus"),
-                        help="Output directory (default: dist/manus)")
-    parser.add_argument("--all", action="store_true",
-                        help="Wrap all skills in the skills/ directory")
+                        help="Path to skill directory (omit with --all)")
+    parser.add_argument("--output", "-o", type=Path, default=Path("dist/manus"))
+    parser.add_argument("--all", action="store_true", help="Wrap all skills under skills/")
     args = parser.parse_args()
 
     if args.all:
-        # Find skills root relative to this script
         repo_root = Path(__file__).resolve().parent.parent.parent
         skills_root = repo_root / "skills"
         if not skills_root.exists():
@@ -177,7 +163,6 @@ def main():
             sys.exit(1)
         output_path = wrap_skill(args.skill_dir, args.output)
         print(f"✓  Wrapped: {output_path}")
-        print(f"   Deploy: copy {output_path.parent}/ to /home/ubuntu/skills/ on Manus sandbox")
 
 
 if __name__ == "__main__":
