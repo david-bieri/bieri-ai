@@ -1,0 +1,8 @@
+# Authored metadata for teaching-assess-from-kb. The adapter derives `name` from the directory;
+# it is intentionally not set here.
+description: "Generate MCQs, short-answer, and discussion prompts from the course knowledge base. Use for quizzes, exams, or Blended Teaching items across any module. Requires the KB in Project knowledge."
+version: "1.0.0"
+created: "2026-06-11"
+updated: "2026-06-11"
+depends_on: ["teaching:build-kb", "teaching:news-hooks"]
+used_by: []

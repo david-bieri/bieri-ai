@@ -8,14 +8,14 @@
 
 | Skill | Version | Status | Updated |
 |-------|---------|--------|---------|
-| `web-release-workflow` | 1.0.0 | Active | 2026-06-10 |
+| `webdev-release-workflow` | 1.0.0 | Active | 2026-06-10 |
 | `webdev-static-site-i18n` | 1.0.0 | Active | 2026-06-10 |
 | `webdev-d3-analytics-modules` | 1.0.0 | Active | 2026-06-10 |
 | `webdev-json-data-enrichment` | 1.0.0 | Active | 2026-06-10 |
 | `webdev-latex-pdf-guide` | 1.0.0 | Active | 2026-06-10 |
 | `webdev-cross-browser-smoke-test` | 1.0.0 | Active | 2026-06-10 |
 | `webdev-contact-protocol-links` | 1.0.0 | Active | 2026-06-10 |
-| `webdev-supabase-app` | 1.0.0 | Active | 2026-06-10 |
+| `webdev-supabase-app` | 1.1.0 | Active | 2026-06-11 |
 | `webdev-vite-express` | 1.1.0 | Active | 2026-06-11 |
 | `webdev-deploy-render` | 1.1.0 | Active | 2026-06-11 |
 | `webdev-platform-migration` | 1.0.0 | Active | 2026-06-10 |
@@ -59,3 +59,4 @@
 | 2026-06-11 | Updated | `webdev-vite-express` v1.1.0 — tailwind.config.js rule, Node version floor, tsx .bin fix, plugin dep placement |
 | 2026-06-11 | Updated | `webdev-deploy-render` v1.1.0 — nodeVersion required, VITE_ env var trap, Exited-status-1 diagnosis table |
 | 2026-06-11 | Added | `webdev-node-build-pitfalls` v1.0.0 — 7 CI build pitfalls with symptom/cause/fix + pre-deploy checklist |
+| 2026-06-11 | Normalized | Contract normalization — colon identities + sidecars; `web-release-workflow` → `webdev:release-workflow`; `webdev:supabase-app` → v1.1.0; six skill reconciliations |

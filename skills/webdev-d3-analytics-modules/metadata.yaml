@@ -1,0 +1,8 @@
+# Authored metadata for webdev-d3-analytics-modules. The adapter derives `name` from the directory;
+# it is intentionally not set here.
+description: "Architecture for interactive, tab-driven analytics dashboards using D3.js (or React/D3) without a backend. Use when building or extending client-side analytics modules."
+version: "1.0.0"
+created: "2026-06-11"
+updated: "2026-06-11"
+depends_on: []
+used_by: ["webdev:release-workflow"]

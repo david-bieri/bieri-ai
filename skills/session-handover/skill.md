@@ -210,7 +210,7 @@ This skill operates within a four-domain, three-layer architecture. Read
 | Domain | Session notes (fast) | Registry (slow) | Skills |
 |--------|---------------------|----------------|--------|
 | Research | `RESEARCH_SESSION_NOTES.md` | progress log | — |
-| Teaching | `TEACHING_SESSION_NOTES.md` | `SKILLS_MANIFEST.md` | `teaching:*` (7 active) |
+| Teaching | `TEACHING_SESSION_NOTES.md` | `SKILLS_MANIFEST.md` | `teaching:*` (6 active) |
 | Admin | `{PROJECT}_SESSION_NOTES.md` | project progress + decisions | (project-specific) |
 | Home | `HOME_SESSION_NOTES.md` | registry | — |
 

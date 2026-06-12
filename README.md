@@ -50,9 +50,11 @@ Each domain contains a `SKILLS_MANIFEST.md` registry and session notes.
 Example: `./tools/new-project.sh webdev AGW "AGW Conference Site"`
 
 ### Add a new skill
-1. Copy `templates/skill_template.md` to `skills/<namespace>-<name>/skill.md`
-2. Write the skill logic in platform-agnostic Markdown.
-3. Use the appropriate adapter in `adapters/` to generate the platform-specific format.
+1. Copy `templates/skill_template.md` to `skills/<namespace>-<name>/skill.md` (directory hyphenated; H1 colon-namespaced).
+2. Write the skill logic in platform-agnostic Markdown — **no YAML frontmatter** (the adapter adds it).
+3. Copy `templates/metadata.yaml` alongside it and fill in `description` (≤200 chars), `version`, and `depends_on`/`used_by`. `name` is derived from the directory — never set it here.
+4. Register the skill in the relevant domain's `SKILLS_MANIFEST.md`.
+5. Run the appropriate adapter in `adapters/` to generate the platform-specific format.
 
 ### Package skills for deployment
 ```bash
@@ -94,28 +96,47 @@ When you notice a repeatable pattern:
 
 ## Skills Inventory
 
+Identity is colon-namespaced; the directory is the hyphenated equivalent (`teaching:news-hooks` lives in `skills/teaching-news-hooks/`). Each skill is a platform-agnostic `skill.md` plus a `metadata.yaml` sidecar (authored description, version, `depends_on`/`used_by`).
+
 ### Universal
 | Skill | Purpose |
-|-------|--------|
-| `session-handover` | Session state management across all domains |
-| `web-release-workflow` | Orchestrator for merge/deploy ceremonies |
+|-------|---------|
+| `session-handover` | Session state continuity across all domains |
 
-### Teaching (`teaching-*`)
+### Admin (`admin:*`)
+| Skill | Purpose |
+|-------|---------|
+| `admin:cron-agent` | Durable recurring agent cron jobs (single-invocation pattern) |
+| `admin:gmail-scanner` | Gmail intake → structured calendar items → app API |
+| `admin:tag-parser` | `#TAG @Name` subject-line classification |
+| `admin:family-hub` | Full-stack family administration app (orchestrates the above) |
+
+### Teaching (`teaching:*`)
 | Skill | Purpose | Bundled Resources |
 |-------|---------|-------------------|
-| `teaching-news-hooks` | "In the news" slide search and formatting | — |
-| `teaching-build-kb` | PPTX → KB extraction | `scripts/build_kb.py` |
-| `teaching-video-scripts` | Narration scripts at 130 wpm | — |
-| `teaching-compose-slides` | Lecture decks in house style | `references/house-style.md`, `references/slide-library.md` |
-| `teaching-assess-from-kb` | Assessment generation from KB | — |
-| `teaching-skill-builder` | Skill library creation and maintenance | `scripts/audit_skill.py` |
+| `teaching:news-hooks` | "In the news" slide search and formatting | — |
+| `teaching:build-kb` | PPTX → KB extraction | `scripts/build_kb.py` |
+| `teaching:video-scripts` | Narration scripts at 130 wpm | — |
+| `teaching:compose-slides` | Lecture decks in house style | `references/house-style.md`, `references/slide-library.md` |
+| `teaching:assess-from-kb` | Assessment generation from KB | — |
+| `teaching:skill-builder` | Skill library creation and maintenance | `scripts/audit_skill.py` |
 
-### WebDev (`webdev-*`)
+### WebDev (`webdev:*`)
 | Skill | Purpose |
-|-------|--------|
-| `webdev-static-site-i18n` | Multilingual static site management |
-| `webdev-d3-analytics-modules` | D3/React analytics dashboards |
-| `webdev-json-data-enrichment` | JSON dataset transformation |
-| `webdev-latex-pdf-guide` | LaTeX user guide compilation |
-| `webdev-cross-browser-smoke-test` | Structured QA testing |
-| `webdev-contact-protocol-links` | Zero-infrastructure contact channels |
+|-------|---------|
+| `webdev:vite-express` | Vite + Express full-stack scaffold and build pipeline |
+| `webdev:supabase-app` | Supabase schema, RLS, migrations, real-time |
+| `webdev:deploy-render` | Deploy apps + cron to Render.com |
+| `webdev:platform-migration` | Sandbox → self-hosted portability migration |
+| `webdev:release-workflow` | Orchestrator for merge/deploy ceremonies |
+| `webdev:static-site-i18n` | Multi-page static site + client-side i18n |
+| `webdev:d3-analytics-modules` | D3/React analytics dashboards |
+| `webdev:json-data-enrichment` | JSON dataset transformation |
+| `webdev:latex-pdf-guide` | LaTeX guide compilation + web delivery |
+| `webdev:cross-browser-smoke-test` | Pre-merge QA smoke testing |
+| `webdev:contact-protocol-links` | Zero-infrastructure contact channels |
+| `webdev:messaging-inapp-sms` | In-app + inbound-SMS messaging *(source reconstruction pending)* |
+| `webdev:node-build-pitfalls` | CI build pitfalls reference *(source reconstruction pending)* |
+
+### Research (`research:*`) / Home (`home:*`)
+No skills yet — greenfield. `home:` is reserved; household skills currently live in `admin:*`.

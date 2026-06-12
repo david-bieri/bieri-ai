@@ -1,0 +1,8 @@
+# Authored metadata for teaching-skill-builder. The adapter derives `name` from the directory;
+# it is intentionally not set here.
+description: "Create, update, audit, and package teaching skills in the teaching: namespace. Use when building a skill from a workflow, updating one, running compliance checks, or maintaining the manifest."
+version: "1.0.0"
+created: "2026-06-11"
+updated: "2026-06-11"
+depends_on: []
+used_by: []
