@@ -156,13 +156,44 @@ function newsSlide(p, tag, title, source, url, question, notes, n, total) {
   return s;
 }
 
+// ---- v1.2.0 embed path: figure slide with caption pulled from captions.json ----
+// captions.json is produced from captions.yaml by figures.dump_json() (Makefile step).
+const fs = require("fs");
+const path = require("path");
+function loadCaptions(jsonPath) {
+  const fp = jsonPath || path.join(__dirname, "captions.json");
+  try { return JSON.parse(fs.readFileSync(fp, "utf8")); }
+  catch (e) { return {}; }
+}
+
+// Embed a figure image (PNG from the diagram/chart build) and pull its title +
+// source line from captions.json by key. Slide carries the caption (caption_mode=off).
+function figureSlide(p, tag, key, imagePath, notes, n, total, opts) {
+  const o = opts || {};
+  const caps = o.captions || loadCaptions(o.captionsPath);
+  const rec = caps[key] || {};
+  const title = o.title || rec.short || key;
+  const source = (o.source != null) ? o.source : (rec.source || "");
+  const s = p.addSlide();
+  header(p, s, tag, title);
+  // center the image in the content area, preserving aspect via "contain"
+  s.addImage({ path: imagePath, x: 0.7, y: 1.45, w: 8.6, h: 3.1, sizing: { type: "contain", w: 8.6, h: 3.1 } });
+  if (source) {
+    s.addText(source, { x: 0.4, y: 4.66, w: 9.2, h: 0.26,
+      fontFace: FONT, fontSize: 9.5, italic: true, color: GRAY, margin: 0 });
+  }
+  footer(s, n, total);
+  if (notes) s.addNotes(notes);
+  return s;
+}
+
 module.exports = {
   // tokens
   FONT, DARK, BODY, GRAY, RED, BOX, W, H,
   // config
   setCourse, COURSE,
   // primitives
-  header, footer, HELPERS,
+  header, footer, HELPERS, loadCaptions,
   // slide builders
-  titleSlide, bulletSlide, conceptSlide, threeBoxSlide, workedSlide, newsSlide,
+  titleSlide, bulletSlide, conceptSlide, threeBoxSlide, workedSlide, newsSlide, figureSlide,
 };

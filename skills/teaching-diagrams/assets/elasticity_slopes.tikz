@@ -1,0 +1,17 @@
+% elasticity_slopes.tikz — slope = elasticity (steep inelastic vs flat elastic).
+\begin{tikzpicture}[x=1cm, y=1cm]
+  % --- left panel: inelastic (steep) ---
+  \begin{scope}[xshift=0cm]
+    \bieriaxes{3.4}{3.6}
+    \draw[bieri demand] (1.3,3.5) -- (2.0,0.3);
+    \node[bieriDark, font=\small\bfseries] at (1.7,-0.55) {Steep $\to$ inelastic};
+    \node[bieri note] at (1.7,-1.05) {big $\Delta P$, small $\Delta Q$};
+  \end{scope}
+  % --- right panel: elastic (flat) ---
+  \begin{scope}[xshift=5.2cm]
+    \bieriaxes{3.4}{3.6}
+    \draw[bieri supply] (0.2,2.3) -- (3.2,1.4);
+    \node[bieriRed, font=\small\bfseries] at (1.7,-0.55) {Flat $\to$ elastic};
+    \node[bieri note] at (1.7,-1.05) {small $\Delta P$, big $\Delta Q$};
+  \end{scope}
+\end{tikzpicture}

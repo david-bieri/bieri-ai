@@ -46,6 +46,20 @@ function header(p, s, tag, title) {
 }
 ```
 
+### `loadCaptions(jsonPath?)`
+Loads `captions.json` (exported from `teaching:charts` `captions.yaml` via
+`figures.dump_json()`, a `make charts` step). Returns the caption map, or `{}` on error.
+Defaults to `captions.json` beside `slide_lib.js`.
+```javascript
+const fs = require("fs");
+const path = require("path");
+function loadCaptions(jsonPath) {
+  const fp = jsonPath || path.join(__dirname, "captions.json");
+  try { return JSON.parse(fs.readFileSync(fp, "utf8")); }
+  catch (e) { return {}; }
+}
+```
+
 ---
 
 ## Slide types
@@ -228,6 +242,44 @@ function newsSlide(p, tag, title, source, url, question, notes, n, total) {
   if (notes) s.addNotes(notes);
   return s;
 }
+```
+
+### `figureSlide(p, tag, key, imagePath, notes, n, total, opts)`
+Embeds a prebuilt figure (diagram or chart PNG) and pulls its title + source line from
+`captions.json` by `key`. The slide carries the caption; the image stays clean
+(`caption_mode="off"`). Build assets with `teaching:diagrams` / `teaching:charts`, then
+`make -C tools all` (PNGs land in `build/figures/render/`).
+
+- `tag`: red tag line — e.g., `"[L2.3] · The model"`
+- `key`: caption key in `captions.yaml` (e.g., `"supply_fan"`) — supplies the title (`short`) and `source`
+- `imagePath`: PNG asset — e.g., `"build/figures/render/supply_fan.png"`
+- `opts` (optional): `{ captions, captionsPath, title, source }` — pass a preloaded map via
+  `captions`, or override `title`/`source`; falls back to `key` as the title if no caption is found
+```javascript
+function figureSlide(p, tag, key, imagePath, notes, n, total, opts) {
+  const o = opts || {};
+  const caps = o.captions || loadCaptions(o.captionsPath);
+  const rec = caps[key] || {};
+  const title = o.title || rec.short || key;
+  const source = (o.source != null) ? o.source : (rec.source || "");
+  const s = p.addSlide();
+  header(p, s, tag, title);
+  s.addImage({ path: imagePath, x: 0.7, y: 1.45, w: 8.6, h: 3.1,
+               sizing: { type: "contain", w: 8.6, h: 3.1 } });
+  if (source) {
+    s.addText(source, { x: 0.4, y: 4.66, w: 9.2, h: 0.26,
+      fontFace: FONT, fontSize: 9.5, italic: true, color: GRAY, margin: 0 });
+  }
+  footer(s, n, total);
+  if (notes) s.addNotes(notes);
+  return s;
+}
+```
+**Usage:**
+```javascript
+const caps = loadCaptions("build/figures/captions.json");
+figureSlide(p, "[L2.3] · The model", "supply_fan",
+            "build/figures/render/supply_fan.png", "narration…", 6, T, { captions: caps });
 ```
 
 ---

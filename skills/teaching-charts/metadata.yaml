@@ -1,0 +1,7 @@
+# metadata.yaml — authored metadata for teaching:charts (read by adapters/*/wrap_skill.py)
+description: "Empirical charts (line/bar/scatter-dot/box) from FRED/BEA/Census/BLS in Bieri house style. Dual-target PNG/PDF; caption + table toggle; AER conventions. Hosts the shared caption layer."
+version: "1.0.0"
+created: "2026-06-19"
+updated: "2026-06-19"
+depends_on: []
+used_by: ["teaching:compose-slides", "teaching:diagrams"]

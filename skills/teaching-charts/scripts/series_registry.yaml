@@ -1,0 +1,48 @@
+# series_registry.yaml — friendly names → data-source series for teaching-charts
+# Authors reference concepts ("housing_starts"), not cryptic IDs.
+#   from datasources import from_registry
+#   df = from_registry("housing_starts")
+#
+# transform: optional ("yoy" = year-over-year % change)
+
+housing_starts:
+  source: FRED
+  id: HOUST
+  label: "Housing starts (thousands, SAAR)"
+
+mortgage_rate_30y:
+  source: FRED
+  id: MORTGAGE30US
+  label: "30-yr fixed mortgage rate (%)"
+
+cpi_yoy:
+  source: FRED
+  id: CPIAUCSL
+  label: "CPI inflation, YoY (%)"
+  transform: yoy
+
+rent_cpi:
+  source: FRED
+  id: CUSR0000SEHA
+  label: "CPI: rent of primary residence"
+
+real_gdp:
+  source: FRED
+  id: GDPC1
+  label: "Real GDP (chained 2017 $, bil.)"
+
+existing_home_sales:
+  source: FRED
+  id: EXHOSLUSM495S
+  label: "Existing home sales (SAAR)"
+
+# Example non-FRED entries (confirm IDs against current docs when first used):
+unemployment_bls:
+  source: BLS
+  id: LNS14000000
+  label: "Unemployment rate (%)"
+
+median_hh_income_acs:
+  source: Census
+  id: B19013_001E
+  label: "Median household income (ACS)"

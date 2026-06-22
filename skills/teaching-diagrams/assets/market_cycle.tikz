@@ -1,0 +1,20 @@
+% market_cycle.tikz — the four-phase RE physical market cycle (Mueller-style).
+% A sine wave of occupancy/rents around the long-run average, four phases labeled.
+\begin{tikzpicture}[x=1cm, y=1cm]
+  % axes
+  \draw[bieri axis] (0,0) -- (0,4.4) node[bieri axlabel, left=1pt] {Rents / occupancy};
+  \draw[bieri axis] (0,0) -- (11.2,0) node[bieri axlabel, below=1pt] {Time};
+  % long-run average line
+  \draw[bieriGray, line width=0.6pt, dashed] (0,2.2) -- (11.0,2.2)
+    node[bieri note, right] {LR average};
+  % the cycle (one full wave): trough -> peak -> trough
+  \draw[bieri supply, smooth, samples=120, domain=0.3:10.6]
+    plot (\x, {2.2 + 1.55*sin((\x*36)-90)});
+  % phase dividers (quarter points of the wave)
+  \foreach \x in {2.85,5.45,8.05} { \draw[bieriGray, line width=0.4pt, dotted] (\x,0) -- (\x,4.0); }
+  % phase labels
+  \node[bieri clabel, color=bieriDark] at (1.6,1.0)  {1 · Recovery};
+  \node[bieri clabel, color=bieriDark] at (4.2,3.7)  {2 · Expansion};
+  \node[bieri clabel, color=bieriDark] at (6.8,3.7)  {3 · Oversupply};
+  \node[bieri clabel, color=bieriDark] at (9.4,1.0)  {4 · Recession};
+\end{tikzpicture}

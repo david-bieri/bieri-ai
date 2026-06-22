@@ -51,8 +51,68 @@ from pathlib import Path
 
 try:
     from pptx import Presentation
+    from pptx.enum.shapes import MSO_SHAPE_TYPE
 except ImportError:
     sys.exit("ERROR: python-pptx not found.  Run:  pip install python-pptx")
+
+
+# ── Non-text asset extraction (v1.1.0) ────────────────────────────────────────
+# build_kb is otherwise text-only; these helpers let the KB SEE and flag slides
+# whose content is a figure, table, or chart — previously dropped silently.
+def _table_to_md(tbl) -> str:
+    """Render a PPTX table as a GitHub-Markdown table."""
+    rows = []
+    for r in tbl.rows:
+        cells = [c.text.strip().replace("\n", " ").replace("|", "\\|") for c in r.cells]
+        rows.append(cells)
+    if not rows:
+        return ""
+    out = ["| " + " | ".join(rows[0]) + " |",
+           "| " + " | ".join("---" for _ in rows[0]) + " |"]
+    for r in rows[1:]:
+        out.append("| " + " | ".join(r) + " |")
+    return "\n".join(out)
+
+
+def _chart_desc(chart) -> str:
+    """One-line description of a chart: type + series + category span."""
+    try:
+        ctype = str(chart.chart_type).split()[0]
+    except Exception:
+        ctype = "chart"
+    series = []
+    try:
+        series = [s.name for s in chart.series if s.name]
+    except Exception:
+        pass
+    cats = []
+    try:
+        cats = [str(c) for c in chart.plots[0].categories if c is not None]
+    except Exception:
+        pass
+    parts = [ctype]
+    if series:
+        parts.append("series: " + ", ".join(series[:4]) + ("…" if len(series) > 4 else ""))
+    if cats:
+        span = f"{cats[0]}–{cats[-1]}" if len(cats) > 1 else cats[0]
+        parts.append(f"categories: {span}")
+    return " · ".join(parts)
+
+
+def extract_assets(slide) -> dict:
+    """Detect pictures, tables, and charts that text extraction misses."""
+    pics, tables, charts = 0, [], []
+    for sh in slide.shapes:
+        try:
+            if getattr(sh, "has_table", False) and sh.has_table:
+                tables.append(_table_to_md(sh.table))
+            elif getattr(sh, "has_chart", False) and sh.has_chart:
+                charts.append(_chart_desc(sh.chart))
+            elif sh.shape_type == MSO_SHAPE_TYPE.PICTURE:
+                pics += 1
+        except Exception:
+            pass
+    return {"pictures": pics, "tables": tables, "charts": charts}
 
 
 # ── Vintage detection ─────────────────────────────────────────────────────────
@@ -333,18 +393,39 @@ def build_kb(decks: list[Path], include_notes: bool) -> str:
 
             for slide_num, slide in enumerate(prs.slides, 1):
                 title, body_lines, notes = extract_slide(slide)
-                if not title and not body_lines:
-                    continue   # image-only / blank slide
+                assets = extract_assets(slide)
+                has_assets = assets["pictures"] or assets["tables"] or assets["charts"]
+                if not title and not body_lines and not has_assets:
+                    continue   # truly blank slide
 
-                stype = slide_type(title, " ".join(body_lines))
+                # Slide type: text heuristics first; else classify by dominant asset.
+                if title or body_lines:
+                    stype = slide_type(title, " ".join(body_lines))
+                elif assets["tables"]:
+                    stype, title = "TABLE", title or "(table)"
+                elif assets["charts"]:
+                    stype, title = "CHART", title or "(chart)"
+                else:
+                    stype, title = "FIGURE", title or "(image-only slide)"
 
                 lines.append(f"#### Slide {slide_num} — [{stype}] {title}")
 
                 for bl in body_lines:
                     if bl.strip() and bl.strip() != title.strip():
                         lines.append(f"- {bl}")
-
                 if body_lines:
+                    lines.append("")
+
+                # Surface non-text assets so KB-dependent skills can see them.
+                for tbl_md in assets["tables"]:
+                    if tbl_md:
+                        lines += ["", "**[TABLE]**", "", tbl_md, ""]
+                for ch in assets["charts"]:
+                    lines.append(f"> **[CHART]** {ch}")
+                if assets["pictures"]:
+                    lines.append(f"> **[FIGURE]** {assets['pictures']} image(s) — "
+                                 f"visual content not captured as text")
+                if has_assets:
                     lines.append("")
 
                 if include_notes and notes:

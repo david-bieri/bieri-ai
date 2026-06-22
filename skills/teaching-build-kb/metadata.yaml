@@ -1,8 +1,8 @@
 # Authored metadata for teaching-build-kb. The adapter derives `name` from the directory;
 # it is intentionally not set here.
-description: "Build the course knowledge base from PPTX slides via build_kb.py. Use to extract, update, or troubleshoot the slide KB; produces the KB the other teaching skills consume."
-version: "1.0.0"
+description: "Build the course knowledge base from PPTX slides via build_kb.py, capturing text plus figures, tables, and charts. Use to extract, update, or troubleshoot the KB the other teaching skills consume."
+version: "1.1.0"
 created: "2026-06-11"
-updated: "2026-06-11"
+updated: "2026-06-19"
 depends_on: []
 used_by: ["teaching:assess-from-kb", "teaching:compose-slides"]

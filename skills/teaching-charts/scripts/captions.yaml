@@ -1,0 +1,47 @@
+# captions.yaml — author captions ONCE; reuse across pptx, Beamer, and papers.
+# key: { short, caption, source, kind }
+#   short   : slide title / short reference
+#   caption : full caption for LaTeX \caption{} (papers, Beamer figure frames)
+#   source  : provenance line (charts/tables); empty for pure theory diagrams
+#   kind    : figure | table
+#
+# Toggle (figures.py): caption_mode = off | host | baked
+#   off   -> image only; the pptx slide carries the text          (deck default)
+#   host  -> emit a LaTeX figure/table env with \caption + \label  (paper/Beamer)
+#   baked -> draw caption into the image (charts only; standalone)
+
+supply_fan:
+  short: "The supply fan: inelastic to elastic"
+  caption: "Supply elasticity across the immediate, short, and long run. A demand
+            shock against the near-vertical immediate-run supply drives a large price
+            change; as supply rotates flatter over time, the same shock yields more
+            quantity and less price."
+  source: ""
+  kind: figure
+
+sd_cross:
+  short: "Market equilibrium"
+  caption: "Competitive equilibrium at the intersection of demand and supply.
+            Above $P^{*}$ a surplus pushes price down; below it a shortage pushes price up."
+  source: ""
+  kind: figure
+
+market_cycle:
+  short: "The four-phase market cycle"
+  caption: "The real estate physical market cycle: recovery, expansion, oversupply,
+            and recession around the long-run average occupancy/rent level."
+  source: ""
+  kind: figure
+
+sunbelt_rents:
+  short: "Sunbelt rents: the fan in real life"
+  caption: "A pandemic-era construction wave drove Sunbelt apartment rents up, then
+            down as deliveries arrived years later --- the supply fan playing out in time."
+  source: "Stylized fact --- illustrative. Source: Federal Reserve Bank of Dallas (Mar 2026); CoStar."
+  kind: figure
+
+elasticity_summary:
+  short: "Elasticity classification"
+  caption: "Price-elasticity classification: $|E|>1$ elastic, $|E|<1$ inelastic, $|E|=1$ unit elastic."
+  source: ""
+  kind: table

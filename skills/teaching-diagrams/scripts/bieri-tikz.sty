@@ -1,0 +1,69 @@
+% ============================================================================
+% bieri-tikz.sty — house style for Bieri theory diagrams (REAL/UAP courses)
+% Single source of visual truth: palette, fonts, curve/axis/label styles.
+% Every diagram \usepackage{bieri-tikz} so they are uniform by construction.
+%
+% Font: XCharter text + matching newtxmath (econ notation: P*, Q*, |E|, subscripts).
+% Compile per-figure with the standalone class for a cropped, embeddable PDF:
+%   \documentclass[border=4pt]{standalone}\usepackage{bieri-tikz}\begin{document}...\end{document}
+% ============================================================================
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{bieri-tikz}[2026/06/18 Bieri theory-diagram house style]
+
+% ---- Options -----------------------------------------------------------------
+% [nofont] : skip XCharter/newtxmath loading (use when the host doc — e.g. a
+%            Beamer theme or article preamble — already sets the fonts).
+\newif\ifbieri@font \bieri@fonttrue
+\DeclareOption{nofont}{\bieri@fontfalse}
+\ProcessOptions\relax
+
+% ---- Fonts (Palatino body + Heros sans headers + matching Palatino math) ----
+% [nofont] skips this when the host doc (Beamer theme / article preamble) sets fonts.
+\ifbieri@font
+  \RequirePackage[T1]{fontenc}
+  \RequirePackage{newpxtext}   % Palatino-style serif body (text)
+  \RequirePackage{newpxmath}   % matching Palatino math (load AFTER text fonts)
+  \renewcommand{\sfdefault}{qhv}   % TeX Gyre Heros = Helvetica, as the sans family
+\fi
+
+% ---- TikZ / pgfplots --------------------------------------------------------
+\RequirePackage{tikz}
+\RequirePackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usetikzlibrary{arrows.meta, calc, positioning, decorations.pathreplacing}
+
+% ---- Palette (matches slide/house tokens) ----------------------------------
+\definecolor{bieriRed} {HTML}{C00000}   % accent / Supply
+\definecolor{bieriDark}{HTML}{262626}   % primary / Demand / axes
+\definecolor{bieriBody}{HTML}{333333}   % body text
+\definecolor{bieriGray}{HTML}{808080}   % guides / secondary
+\definecolor{bieriBox} {HTML}{D9D9D9}   % shaded fills
+
+% ---- Named styles -----------------------------------------------------------
+\tikzset{
+  % axes: thin dark lines with arrowheads; origin at (0,0)
+  bieri axis/.style   = {bieriDark, line width=0.9pt, -{Stealth[length=5pt]}},
+  % curves
+  bieri demand/.style = {bieriDark, line width=2.0pt},
+  bieri supply/.style = {bieriRed,  line width=2.0pt},
+  bieri curve2/.style = {dashed, line width=1.6pt},           % shifted curve
+  bieri curve3/.style = {densely dotted, line width=1.4pt},   % third curve (fan)
+  % guides + points
+  bieri guide/.style  = {bieriGray, line width=0.6pt, dashed},
+  bieri eqdot/.style   = {bieriRed, fill=bieriRed, circle, inner sep=1.7pt},
+  bieri olddot/.style  = {bieriGray, fill=bieriGray, circle, inner sep=1.7pt},
+  % labels
+  bieri clabel/.style = {font=\itshape\bfseries},             % curve label (D, S, S_lr)
+  bieri axlabel/.style= {bieriDark, font=\bfseries},          % axis label (P, Q)
+  bieri note/.style   = {bieriGray, font=\footnotesize\itshape}, % region note
+}
+
+% ---- Helper: draw P,Q axes of given width/height ----------------------------
+% \bieriaxes{width}{height}  (in cm); leaves the plot box with origin at (0,0)
+\newcommand{\bieriaxes}[2]{%
+  \draw[bieri axis] (0,0) -- (0,#2) node[bieri axlabel, left=1pt] {$P$};
+  \draw[bieri axis] (0,0) -- (#1,0) node[bieri axlabel, below=1pt] {$Q$};
+  \node[bieriGray, font=\scriptsize, below left=-1pt] at (0,0) {$0$};
+}
+
+\endinput

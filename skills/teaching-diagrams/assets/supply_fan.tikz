@@ -1,0 +1,11 @@
+% supply_fan.tikz — "supply over time" fan (immediate / short / long run)
+% Body only: \input into a Beamer frame, or compile via _standalone.tex.
+% Requires \usepackage{bieri-tikz} in the host preamble.
+\begin{tikzpicture}[x=1cm, y=1cm]
+  \bieriaxes{7.6}{5.4}
+  \draw[bieri demand] (0.5,4.9) -- (7.1,0.7) node[bieri clabel, color=bieriDark, right=1pt] {$D$};
+  \coordinate (base) at (2.0,0.5);
+  \draw[bieri supply] (base) -- (2.25,5.1) node[bieri clabel, color=bieriRed, above=1pt] {$S_{\mathrm{im}}$};
+  \draw[bieri supply, bieri curve2] (base) -- (5.4,5.1) node[bieri clabel, color=bieriRed, right=1pt] {$S_{\mathrm{sr}}$};
+  \draw[bieri supply, bieri curve3] (base) -- (7.4,2.7) node[bieri clabel, color=bieriRed, right=1pt] {$S_{\mathrm{lr}}$};
+\end{tikzpicture}

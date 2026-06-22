@@ -1,0 +1,8 @@
+% _standalone.tex — compile one .tikz body to a cropped, embeddable PDF.
+%   pdflatex "\def\bieribody{diagrams/sd_cross.tikz}\input{_standalone.tex}"
+% (the build script wraps this). For pptx embed; for Beamer, \input the body directly.
+\documentclass[border=4pt]{standalone}
+\usepackage{bieri-tikz}
+\begin{document}
+\input{\bieribody}
+\end{document}

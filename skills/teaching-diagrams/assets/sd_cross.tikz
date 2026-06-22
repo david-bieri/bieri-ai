@@ -1,0 +1,17 @@
+% sd_cross.tikz — equilibrium with surplus/shortage regions.
+\begin{tikzpicture}[x=1cm, y=1cm]
+  \bieriaxes{7.6}{5.4}
+  % demand (down) and supply (up)
+  \draw[bieri demand] (0.5,4.8) -- (6.8,0.7) node[bieri clabel, color=bieriDark, right=1pt] {$D$};
+  \draw[bieri supply] (0.7,0.7) -- (6.8,4.8) node[bieri clabel, color=bieriRed,  right=1pt] {$S$};
+  % equilibrium at intersection (~3.7, 2.75)
+  \coordinate (E) at (3.72,2.78);
+  \draw[bieri guide] (E) -- (E |- 0,0);
+  \draw[bieri guide] (E) -- (E -| 0,0);
+  \node[bieri eqdot] at (E) {};
+  \node[bieriRed, font=\small, left]  at (0,2.78) {$P^{*}$};
+  \node[bieriRed, font=\small, below] at (3.72,0) {$Q^{*}$};
+  % region notes
+  \node[bieri note] at (2.0,4.4) {surplus ($P>P^{*}$)};
+  \node[bieri note] at (2.2,1.1) {shortage ($P<P^{*}$)};
+\end{tikzpicture}

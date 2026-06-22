@@ -1,0 +1,58 @@
+% process_overview.tikz — the teaching-figures pipeline (dogfoods bieri-tikz.sty).
+% Compile via _standalone.tex like any diagram body.
+\begin{tikzpicture}[x=1cm, y=1cm, >={Stealth[length=5pt]},
+  src/.style ={draw=bieriDark, line width=0.8pt, fill=white, rounded corners=2pt,
+               align=center, font=\footnotesize, text=bieriDark,
+               minimum width=2.7cm, minimum height=1.05cm},
+  proc/.style={draw=bieriDark, line width=0.8pt, fill=bieriBox, rounded corners=2pt,
+               align=center, font=\footnotesize\bfseries, text=bieriDark,
+               minimum width=3.0cm, minimum height=1.05cm},
+  asset/.style={draw=bieriRed, line width=1.1pt, fill=white, rounded corners=2pt,
+               align=center, font=\footnotesize\bfseries, text=bieriDark,
+               minimum width=2.7cm, minimum height=1.05cm},
+  outnode/.style ={draw=bieriRed, line width=1.1pt, fill=bieriRed!8, rounded corners=2pt,
+               align=center, font=\footnotesize\bfseries, text=bieriDark,
+               minimum width=3.2cm, minimum height=1.05cm},
+  flow/.style={bieriDark, line width=1.0pt, ->},
+  capf/.style={bieriRed, line width=1.0pt, dashed, ->}]
+
+  % --- columns (x): sources 0 · produce 4.3 · assets 8.6 · targets 12.6 ---
+  % charts lane (top), diagrams lane (mid), caption lane (bottom)
+  \node[src]   (D)  at (0,3.3)   {Data sources\\ FRED · BEA\\ Census · BLS};
+  \node[src]   (T)  at (0,1.0)   {TikZ templates\\ \texttt{*.tikz}};
+  \node[src]   (Y)  at (0,-1.3)  {\texttt{captions.yaml}};
+
+  \node[proc]  (CH) at (4.3,3.3) {teaching-charts\\ \scriptsize datasources → chart\_lib};
+  \node[proc]  (DG) at (4.3,1.0) {teaching-diagrams\\ \scriptsize bieri-tikz → pdflatex};
+  \node[proc]  (FG) at (4.3,-1.3){\texttt{figures.py}\\ \scriptsize caption layer};
+
+  \node[asset] (AS) at (8.6,2.15){\texttt{figures\_pdf/}\\ PNG · PDF};
+
+  \node[outnode]   (PX) at (12.7,3.3){teaching-compose-slides\\ \scriptsize → \texttt{.pptx}};
+  \node[outnode]   (BM) at (12.7,0.7){Beamer / \LaTeX\\ \scriptsize → \texttt{.pdf}};
+
+  % --- main flow ---
+  \draw[flow] (D)  -- (CH);
+  \draw[flow] (T)  -- (DG);
+  \draw[flow] (CH) -- (AS);
+  \draw[flow] (DG) -- (AS);
+  \draw[flow] (AS) -- (PX);
+  \draw[flow] (AS) -- (BM);
+
+  % --- caption layer (red dashed): captions.yaml → figures.py → both targets ---
+  \draw[capf] (Y)  -- (FG);
+  \draw[capf] (FG) -- (PX);
+  \draw[capf] (FG) -- (BM);
+
+  % --- orchestrator banner over the produce column ---
+  \node[draw=bieriGray, line width=0.7pt, dashed, rounded corners=2pt,
+        font=\scriptsize\itshape, text=bieriGray, fill=none,
+        minimum width=3.4cm, minimum height=0.55cm] (MK) at (4.3,4.7)
+        {\texttt{make} (tools/) — one-command rebuild};
+  \draw[bieriGray, line width=0.6pt, dotted] (MK) -- (CH);
+
+  % --- legend ---
+  \node[font=\scriptsize, text=bieriDark, anchor=west] at (8.0,-1.0) {\textcolor{bieriDark}{\textbf{---}} asset flow};
+  \node[font=\scriptsize, text=bieriRed,  anchor=west] at (8.0,-1.5) {\textcolor{bieriRed}{\textbf{- -}} caption flow};
+
+\end{tikzpicture}

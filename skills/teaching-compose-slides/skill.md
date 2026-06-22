@@ -1,11 +1,11 @@
-
 # teaching:compose-slides
 
 ## When to invoke
 
 Trigger on: "build the deck"; "generate slides"; "narration-ready deck";
 "add slides to the series"; "my style" or "house style"; mentions pptxgenjs;
-any request to produce a .pptx from course content; "Summer/Spring 2026 slides".
+any request to produce a .pptx from course content; "Summer/Spring 2026 slides";
+"embed a diagram/chart/figure into a slide".
 Always read references/house-style.md and references/slide-library.md first.
 
 ---
@@ -58,7 +58,7 @@ Sketch the slide sequence before writing code:
 1. Title
 2. [NEWS] Opening hook
 3. [LO] Learning outcomes
-4–N. Content slides (bullets, concepts, worked examples, three-box)
+4–N. Content slides (bullets, concepts, worked examples, three-box, figures)
 N+1. [NEWS] Closing hook
 N+2. [LO] Key takeaways / recap
 ```
@@ -68,7 +68,9 @@ deck is more than ~10 slides or the content is novel.
 ### Step 4 — Write pptxgenjs code
 
 Read `references/slide-library.md`, then write using the standard function library.
-One build script per deck, output to `/home/claude/DeckName.pptx`.
+One build script per deck, output to `/home/claude/DeckName.pptx`. For any theory
+diagram or empirical chart, embed the prebuilt asset with `figureSlide()` rather than
+re-drawing shapes by hand (see **Embedding figures** below).
 
 ### Step 5 — Render and QA
 
@@ -83,7 +85,7 @@ pdftoppm -jpeg -r 110 DeckName.pdf render/DeckName
 # Inspect key slides
 ```
 QA at minimum: title slide, one content slide, one three-box, one news hook,
-one worked example (if present), recap slide.
+one worked example (if present), one figure slide (if present), recap slide.
 
 ### Step 6 — Deliver
 
@@ -118,6 +120,35 @@ find stories and format them. The news slide format is defined in
 
 ---
 
+## Embedding figures — see `teaching:diagrams` / `teaching:charts`
+
+For decks that include a theory diagram or empirical chart, build the asset with
+`teaching:diagrams` (TikZ) or `teaching:charts` (Python), regenerate via
+`make -C tools all`, then embed the PNG with `figureSlide()`:
+
+```js
+const SL = require("./slide_lib.js");
+const caps = SL.loadCaptions("build/figures/captions.json");  // bridged from captions.yaml
+SL.figureSlide(p,
+  "[L2.3] · The model",                       // tag/title line
+  "supply_fan",                               // caption key in captions.yaml
+  "build/figures/render/supply_fan.png",      // PNG asset (from make)
+  notes, n, total,
+  { captions: caps });
+```
+
+`figureSlide` places the image centered and pulls the slide title + source line from
+`captions.json` (exported from `captions.yaml` by `figures.dump_json()`, a step in
+`make charts`). The slide carries the caption; the embedded image stays clean
+(`caption_mode="off"`). If `captions.json` isn't found it falls back to the key as the
+title. Signature and options are in `references/slide-library.md` under `figureSlide()`.
+
+**Theory vs empirics tag grammar** (keep consistent with the figures):
+`· <concept>` theory diagram · `· In the data …` empirical chart ·
+`· In the (macro-)news …` news hook.
+
+---
+
 ## Multi-deck series
 
 For a series (e.g., four Week-1 videos), build all decks from a single script
@@ -147,3 +178,6 @@ When the course is REAL/UAP 2004 Summer, also append the week:
 - `export NODE_PATH=$(npm root -g)` required before running scripts
 - soffice available for PDF conversion; pdftoppm for rasterisation
 - Output directory: `/mnt/user-data/outputs/`
+- Prebuilt figure assets: `build/figures/render/*.png` (PNG, for `figureSlide`) and
+  `build/figures/figures_pdf/*.pdf` (vector, for Beamer/paper); regenerate with
+  `make -C tools all`

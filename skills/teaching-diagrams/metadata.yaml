@@ -1,0 +1,7 @@
+# metadata.yaml — authored metadata for teaching:diagrams (read by adapters/*/wrap_skill.py)
+description: "TikZ theory diagrams (supply/demand, shifts, elasticity, supply fan, market cycle, system triangle) in Bieri house style. Dual-target: cropped PDF for pptx, native TikZ include for Beamer/LaTeX."
+version: "1.0.0"
+created: "2026-06-19"
+updated: "2026-06-19"
+depends_on: ["teaching:charts"]
+used_by: ["teaching:compose-slides"]

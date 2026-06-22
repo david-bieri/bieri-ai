@@ -1,0 +1,17 @@
+% shift.tikz — outward demand shift (D1 -> D2) against fixed supply.
+\begin{tikzpicture}[x=1cm, y=1cm]
+  \bieriaxes{7.6}{5.4}
+  % fixed supply
+  \draw[bieri supply] (0.7,0.6) -- (6.9,4.9) node[bieri clabel, color=bieriRed, right=1pt] {$S$};
+  % D1 and D2 (shifted right/up)
+  \draw[bieri demand] (0.4,3.9) -- (5.2,0.5) node[bieri clabel, color=bieriDark, right=1pt] {$D_{1}$};
+  \draw[bieri demand, bieri curve2] (1.6,5.0) -- (6.6,0.6) node[bieri clabel, color=bieriDark, right=1pt] {$D_{2}$};
+  % two equilibria
+  \coordinate (E1) at (2.42,1.86);
+  \coordinate (E2) at (3.95,3.18);
+  \draw[bieri guide] (E1) -- (E1 -| 0,0);
+  \draw[bieri guide] (E2) -- (E2 -| 0,0);
+  \node[bieri olddot] at (E1) {};
+  \node[bieri eqdot]  at (E2) {};
+  \node[bieriRed, font=\small\bfseries, anchor=west] at (4.6,4.6) {$P\!\uparrow,\ Q\!\uparrow$};
+\end{tikzpicture}

@@ -1,0 +1,24 @@
+% bieri-preamble.tex — AER math-notation conventions (input in papers / Beamer).
+% Pairs with bieri-tikz.sty (Palatino body+math, Heros headers).
+%   \input{bieri-preamble.tex}
+\usepackage{amsmath, amssymb, booktabs, threeparttable}
+
+% --- Number systems: blackboard bold ONLY here (AER) ---
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\N}{\mathbb{N}}
+
+% --- Vectors / matrices: boldface (AER) ---
+\newcommand{\vect}[1]{\mathbf{#1}}     % \vect{x} -> bold x
+\newcommand{\mat}[1]{\mathbf{#1}}      % \mat{A}  -> bold A
+
+% --- Sets: script (AER) ---
+\newcommand{\set}[1]{\mathcal{#1}}     % \set{S}  -> script S
+
+% Reminders (AER), not enforced by macros:
+%   * scalars are italic (default math mode) — do not bold them
+%   * at most TWO levels of sub/superscripts
+%   * display equations numbered at the LEFT margin:
+\makeatletter \renewcommand{\tagform@}[1]{\maketag@@@{(#1)}} \makeatother
+\usepackage{amsmath}\let\veqno\leqno   % left-side equation numbers
+%   * in-text fractions: (a+b)/(c+d) with a solidus; display complex ones

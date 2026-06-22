@@ -1,0 +1,15 @@
+% system_triangle.tikz — three interacting nodes (relabel for any RE system:
+% e.g. Space market / Asset market / Development; or the three approaches to value).
+\begin{tikzpicture}[x=1cm, y=1cm,
+    bnode/.style={draw=bieriDark, line width=1pt, fill=bieriBox,
+                  rounded corners=2pt, align=center, font=\small\bfseries,
+                  text=bieriDark, minimum width=2.6cm, minimum height=1.0cm},
+    barrow/.style={bieriRed, line width=1.4pt, -{Stealth[length=5pt]}}]
+  \node[bnode] (A) at (0,3.4)   {Space\\ market};
+  \node[bnode] (B) at (-3.0,-0.6) {Asset\\ market};
+  \node[bnode] (C) at (3.0,-0.6)  {Development\\ (new supply)};
+  % cyclic linkages
+  \draw[barrow] (A) -- (B) node[bieri note, midway, above left] {rent};
+  \draw[barrow] (B) -- (C) node[bieri note, midway, below] {price $\to$ build};
+  \draw[barrow] (C) -- (A) node[bieri note, midway, above right] {stock};
+\end{tikzpicture}
